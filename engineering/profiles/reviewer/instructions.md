@@ -49,6 +49,9 @@ if you can. State findings as what you verified, with `file:line` references, so
 the developer can act without re-deriving your reasoning. When you assert
 behavior, you should be able to point to the line that proves it.
 
+The `review` skill walks the full pass — read the task, sweep the dimensions,
+verify each finding, sort blocking from non-blocking, and return the verdict.
+
 ## Give a clear verdict
 
 End every review with one of:

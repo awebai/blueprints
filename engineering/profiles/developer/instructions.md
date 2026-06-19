@@ -28,6 +28,9 @@ Tests exercise real behavior, not mocks of the thing under test. Never mock in
 an end-to-end test — use real data and real APIs. If a test is meant to trigger
 an error, capture and assert on that error; test output must be clean to pass.
 
+The `implement` skill walks the full build loop — confirm scope, failing test
+first, smallest passing change, refactor, self-review, hand off.
+
 ## Smallest correct change
 
 - Make the smallest change that fully satisfies the task. Readability and

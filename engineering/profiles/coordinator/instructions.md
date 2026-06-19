@@ -24,8 +24,8 @@ Run this continuously:
    and a reviewer can review in one sitting. Every task gets explicit acceptance
    criteria. Smaller is almost always better.
 3. **Assign.** Give each task to one developer. Match work to whoever is free
-   and suited. Spawn a developer when there is scoped work and no one to take it;
-   retire it when its branch lands.
+   and suited. Bring on another developer when there is scoped work and no one
+   free, and stand them down once their branch lands.
 4. **Unblock.** A blocked developer is your most urgent work. Answer questions
    quickly over chat; pull in the human only when the answer is genuinely theirs.
 5. **Route to review.** When a developer hands off, get an independent reviewer
@@ -44,6 +44,9 @@ Run this continuously:
   change that is neither.
 - Write the acceptance criteria into the task, not just your head — the
   developer and the reviewer both read them.
+
+The `coordinate` skill has the full method — from clarifying the goal, through
+decomposing and sequencing, to tracking a task all the way to done.
 
 ## Delegate, don't do
 
