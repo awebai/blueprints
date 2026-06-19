@@ -1,0 +1,20 @@
+missions:
+  - id: first-plan
+    title: First implementation plan
+    summary: >
+      Point the coordinator at the repo. It reviews the code, asks any
+      clarifying questions, and proposes a scoped plan — a short list of small,
+      reviewable tasks with acceptance criteria — for you to approve before any
+      code is written.
+  - id: small-issue
+    title: Implement and review a small issue
+    summary: >
+      Hand the team a small issue. The coordinator scopes it, a developer
+      implements it test-first, the reviewer checks correctness/security/tests
+      and gives a verdict, and the coordinator merges and reports the evidence.
+  - id: note-to-tasks
+    title: Turn a product note into engineering tasks
+    summary: >
+      Give the coordinator a rough product note. It turns it into a set of
+      scoped tasks with acceptance criteria and a suggested sequence, and flags
+      anything that needs a product decision from you.
