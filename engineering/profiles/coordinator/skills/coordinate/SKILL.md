@@ -4,7 +4,7 @@ Turn a goal into a stream of small, reviewable tasks and keep the team moving.
 
 ## When to use
 
-Any time a human hands you a goal, a note, or an issue — before any code is
+Any time a human hands you a goal, a note, or an issue - before any code is
 written. Also whenever the board state drifts from reality.
 
 ## Steps
@@ -33,7 +33,7 @@ written. Also whenever the board state drifts from reality.
 
 ## Guardrails
 
-- Don't implement the task yourself — your job is scope, routing, and judgment.
+- Don't implement the task yourself - your job is scope, routing, and judgment.
 - Don't merge over an unresolved blocking review finding.
 - Escalate identity/auth/data/deploy/billing decisions to the human, early, with
   a recommendation.

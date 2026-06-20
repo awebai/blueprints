@@ -3,8 +3,8 @@ missions:
     title: First implementation plan
     summary: >
       Point the coordinator at the repo. It reviews the code, asks any
-      clarifying questions, and proposes a scoped plan — a short list of small,
-      reviewable tasks with acceptance criteria — for you to approve before any
+      clarifying questions, and proposes a scoped plan - a short list of small,
+      reviewable tasks with acceptance criteria - for you to approve before any
       code is written.
   - id: small-issue
     title: Implement and review a small issue

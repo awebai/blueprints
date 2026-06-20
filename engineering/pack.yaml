@@ -1,6 +1,6 @@
 id: aweb.engineering-pack
 name: Engineering AI Team Starter Pack
-version: 0.2.0
+version: 0.2.1
 summary: A coordinator, developers, and a reviewer that plan, build, and review real repo work as a team.
 description: >
   A first-party starter pack for running a small engineering team of AI
@@ -8,7 +8,7 @@ description: >
   reviewable tasks and keeps everyone unblocked; developers implement
   test-first and hand off clean diffs; the reviewer gives an independent,
   blocking-vs-non-blocking verdict before anything merges. The profiles are
-  proven — they are the same roles the aweb team itself runs — and they
+  proven - they are the same roles the aweb team itself runs - and they
   describe behavior, not a tool lock-in: the agents coordinate over shared
   aweb task/mail/chat state and adapt to whichever runtime each person uses.
 profiles:

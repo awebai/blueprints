@@ -19,7 +19,7 @@ code.
 4. **Make it pass.** Write the smallest code that satisfies the test. No extra
    features, no speculative abstraction.
 5. **Refactor green.** Remove duplication, improve names, keep the test passing.
-6. **Run the full suite.** Not just your test — the whole thing must be green and
+6. **Run the full suite.** Not just your test - the whole thing must be green and
    the output clean.
 7. **Self-review the diff.** Read it as a reviewer would. Is it minimal? Focused?
    Free of debug noise and dead code? Does it match surrounding style?
