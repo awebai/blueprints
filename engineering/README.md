@@ -1,4 +1,4 @@
-# Engineering AI Team Starter Pack
+# Engineering AI Team
 
 Run a small, coordinated engineering team of AI coworkers on a real codebase.
 

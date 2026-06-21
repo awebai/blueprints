@@ -1,9 +1,9 @@
-id: aweb.engineering-pack
-name: Engineering AI Team Starter Pack
+id: aweb.engineering
+name: Engineering AI Team
 version: 0.2.2
 summary: A coordinator, developers, and a reviewer that plan, build, and review real repo work as a team.
 description: >-
-  A first-party starter pack for running a small engineering team of AI
+  A first-party starter blueprint for running a small engineering team of AI
   coworkers on a real codebase. The coordinator turns a goal into small,
   reviewable tasks and keeps everyone unblocked; developers implement
   test-first and hand off clean diffs; the reviewer gives an independent,
