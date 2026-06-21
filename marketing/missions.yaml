@@ -1,0 +1,21 @@
+missions:
+  - id: proofread-page
+    title: Proofread a page before it ships
+    summary: >-
+      Hand the proofreader a landing page or web page (a URL or the copy). It
+      reads the rendered page and the text, checks grammar, clarity, voice,
+      links, claims, and accessibility, and returns a ship-or-amend verdict with
+      the exact lines to fix and what is just optional polish.
+  - id: review-campaign-copy
+    title: Review campaign copy
+    summary: >-
+      Give the proofreader an email, ad, or social campaign. It checks every
+      line for errors, clarity, on-brand voice, and audience fit, verifies any
+      claims and links, and flags what blocks sending versus what would sharpen
+      it.
+  - id: style-guide-pass
+    title: Hold copy to the style guide
+    summary: >-
+      Point the proofreader at your style or brand guide and a draft. It checks
+      the draft against the guide - terminology, capitalization, tone, formatting
+      - and reports every deviation with the rule it breaks and the fix.

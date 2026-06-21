@@ -1,11 +1,11 @@
-# Skill: review
+---
+name: review
+description: Reviews a change and returns a clear, verified verdict before it merges, separating blocking issues from non-blocking suggestions. Use when reviewing a developer's diff or pull request, or re-reviewing after amendments.
+---
+
+# Review
 
 Review a change and return a clear, verified verdict before it merges.
-
-## When to use
-
-A developer has handed off a diff for review, or a re-review is requested after
-amendments.
 
 ## Steps
 

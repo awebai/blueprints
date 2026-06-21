@@ -27,9 +27,9 @@ coordinator escalates anything risky to you.
 
 ## Expected apps
 
-`library` (these profiles), `tasks`/activity, `audit`, `secrets`, and `github`
-where available. **Expected apps are setup hints, not access grants** - each app
-authenticates the team and enforces its own policy; the profiles only declare
+`library` (these profiles) and `tasks`/activity. **Expected apps are setup
+hints, not access grants** - each app authenticates the team and enforces its
+own policy; the profiles only declare
 what the agents expect to use.
 
 ## Customize

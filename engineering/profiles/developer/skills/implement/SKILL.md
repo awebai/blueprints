@@ -1,11 +1,11 @@
-# Skill: implement
+---
+name: implement
+description: Turns one scoped task into a clean, tested, reviewable diff using test-first development. Use when implementing an assigned task with acceptance criteria, or writing code for a feature or bugfix that must pass review.
+---
+
+# Implement
 
 Turn one scoped task into a clean, tested, reviewable diff.
-
-## When to use
-
-You've been assigned a task with acceptance criteria and you're about to write
-code.
 
 ## Steps
 

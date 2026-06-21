@@ -1,11 +1,11 @@
-# Skill: debug
+---
+name: debug
+description: Finds and fixes the root cause of a failure instead of patching the symptom. Use when a test fails, an exception or error appears, logs show an error, or code behaves differently than expected.
+---
+
+# Debug
 
 Find and fix the root cause - never patch a symptom.
-
-## When to use
-
-A test fails, an exception appears, logs show an error, or code behaves
-differently than expected.
 
 ## Method
 

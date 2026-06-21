@@ -1,11 +1,11 @@
-# Skill: coordinate
+---
+name: coordinate
+description: Turns a goal into a stream of small, reviewable tasks and keeps a team moving - clarify, decompose, sequence, assign, and track to done. Use when planning or decomposing work into tasks, assigning work to developers, or deciding what to merge and what to escalate.
+---
+
+# Coordinate
 
 Turn a goal into a stream of small, reviewable tasks and keep the team moving.
-
-## When to use
-
-Any time a human hands you a goal, a note, or an issue - before any code is
-written. Also whenever the board state drifts from reality.
 
 ## Steps
 
