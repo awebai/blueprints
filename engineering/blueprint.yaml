@@ -1,6 +1,6 @@
 id: aweb.engineering
 name: Engineering AI Team
-version: 0.2.3
+version: 0.2.4
 summary: A coordinator, developers, and a reviewer that plan, build, and review real repo work as a team.
 description: >-
   A first-party starter blueprint for running a small engineering team of AI

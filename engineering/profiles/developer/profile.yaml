@@ -1,6 +1,6 @@
 id: developer
 name: Developer
-version: 0.2.3
+version: 0.2.4
 mission: >-
   Implement one scoped task at a time, test-first, with the smallest correct
   change, and hand off a clean, reviewable diff with the evidence that it works.
@@ -18,12 +18,11 @@ runtime_assumptions:
 memory_policy:
   mode: reviewed-learning
   proposal_target: library
-expected_apps: [library, tasks, github]
+expected_apps: [library, tasks]
 event_subscriptions:
   - app: tasks
     event: task.assigned
 approval_required:
-  - github.merge_pr
   - any production deploy
   - any change to identity, auth, or customer data
 artifacts:

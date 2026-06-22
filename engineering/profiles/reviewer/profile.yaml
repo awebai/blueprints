@@ -1,6 +1,6 @@
 id: reviewer
 name: Reviewer
-version: 0.2.3
+version: 0.2.4
 mission: >-
   Give independent, fresh-eyes review of a change before it merges, with a clear
   verdict that separates blocking issues - correctness, security, data loss,
@@ -19,12 +19,12 @@ runtime_assumptions:
 memory_policy:
   mode: reviewed-learning
   proposal_target: library
-expected_apps: [library, tasks, github]
+expected_apps: [library, tasks]
 event_subscriptions:
   - app: tasks
     event: task.review_requested
 approval_required:
-  - github.merge_pr
+  - any change to identity, auth, or customer data
 artifacts:
   - path: artifacts/review-template.md
     kind: review_template
