@@ -16,7 +16,8 @@ verdict.
    it clear, does it sound on-brand - before you nitpick lines.
 3. **For a web page, open the rendered page.** Read the real page, not just the
    copy: the headline you see first, the call to action, what is above the fold,
-   how it reads on a small screen.
+   how it reads on a small screen. If the playwright MPC is installed use it.
+   You may have to run the server, if so ask for permission.
 4. **Go dimension by dimension:**
    - Correctness - spelling, grammar, punctuation, typos.
    - Clarity - clear on first read, no jargon or padding, scannable.
