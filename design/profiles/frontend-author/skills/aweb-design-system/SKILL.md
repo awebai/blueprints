@@ -69,6 +69,27 @@ the caret collapses at 540px, the copy action stays.
 - This control REPLACES any dedicated "For LLMs / Read llms.txt" landing section —
   the header is the standard place.
 
+## Open source: the GitHub link and the license line
+
+Every aweb property is open source (MIT), and the page must say so — in three
+places, consistently:
+
+- **A GitHub-logo link in the header** — the GitHub mark icon in `header-right`
+  (next to the theme toggle), linking the app's source repo (`target="_blank"`,
+  `aria-label="Source on GitHub"`). Naapps: set `SiteConfig.source_url` and the
+  toolkit chrome renders it (`.gh-link`). Hugo sites: the same GitHub mark in the
+  header partial. Use the logo, consistently — don't invent a text "Source" button
+  where the others use the mark.
+- **An open-source / MIT line in the footer**, linking the repo — "Open source,
+  MIT-licensed — View on GitHub". Naapps get it from `source_url` (`.footer-oss`);
+  Hugo sites add the same line to the footer partial.
+- **The README must match** — a one-line open-source/MIT statement near the top and
+  a `## License` section pointing to `LICENSE`. Don't ship a public repo whose
+  README reads as an internal or seed doc.
+
+A first-party page that is open source but says so nowhere — no repo link, no
+license, a README that reads internal — is a gap; surface and fix it.
+
 ## Component vocabulary
 
 `.kicker` (mono uppercase accent label — the standard per-section eyebrow);
