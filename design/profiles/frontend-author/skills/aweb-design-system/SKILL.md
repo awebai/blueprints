@@ -134,6 +134,30 @@ wires `.cmd .copy-btn`); `.section` + `.section--tint` (alternating bands);
   stale image once served the pre-component css with 0 control rules while the
   branch was correct. After any deploy, curl the served css and confirm the
   component rules are present — and verify the live page (see below).
+- **CDN edge cache — fingerprint the css URL.** `*.aweb.ai` sits behind a CDN
+  (Cloudflare) that caches `/css/aweb.css` at a stable URL for hours; on every css
+  change the edge serves the OLD css until the TTL expires, so new markup renders
+  unstyled. The fix (in the toolkit): the stylesheet link is fingerprinted with the
+  css content hash — `/css/aweb.<hash>.css` — so each rev is a fresh URL the edge
+  has never cached. Apps serve the fingerprinted path (immutable cache) plus the
+  legacy `/css/aweb.css`. This is why a correct build can still look broken live:
+  test the onrender origin or cache-bust (`?cb=`) until the edge TTL rolls.
+
+## SEO and social cards
+
+Every page must be excellent for search and render a real card when shared
+(WhatsApp, Slack, X). The toolkit `render_head` emits it from the `SiteConfig`:
+
+- **Meta:** a `<title>`, a meta description, a `canonical` link, full Open Graph
+  (`og:type`/`site_name`/`title`/`description`/`url`/`locale`) and Twitter
+  `summary_large_image`. Naapps get this for free; Hugo sites reproduce the same
+  tags in the head partial.
+- **The og:image** is what makes the card show the app. Ship a branded **1200×630**
+  card per app and set `SiteConfig.og_image` (served at `/og-card.png`); the toolkit
+  then emits `og:image` + `twitter:image` (+ width/height/alt). The card is the
+  Paper/Clay system: the dot + the wordmark (monospace), the headline, and
+  `domain · open source, MIT` — render it (a real 1200×630 screenshot), don't fake
+  it. Without an og:image the card is just text; with it, the link shows the app.
 
 ## Verify live — always
 
