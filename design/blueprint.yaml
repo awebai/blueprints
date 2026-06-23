@@ -1,0 +1,23 @@
+id: aweb.design
+name: Design AI Team
+version: 0.1.0
+summary: A frontend author that writes aweb-style web pages — naapp home pages, the shared design system, and engineering references — in the Paper/Clay system, and verifies them rendered.
+description: >-
+  A first-party blueprint for authoring aweb's web surfaces. The frontend-author
+  role writes and maintains naapp home pages, applies the shared Paper/Clay
+  design system, and builds the engineering reference pages — writing for clarity
+  and the house voice, and confirming every page renders correctly on the live
+  deployed URL before it ships. The methodology is the real one distilled from
+  building the library, folio, and aweb surfaces.
+profiles:
+  - id: frontend-author
+    default_count: 1
+    min: 1
+    max: 2
+    runtime_hints: [claude-code]
+runtime_hints: [claude-code]
+expected_apps: [library, tasks]
+first_mission_examples:
+  - Write the home page for a new naapp in the Paper/Clay system and verify it renders.
+  - Rework this landing page for clarity and design-system consistency.
+  - Build the engineering reference page for this naapp's API.
