@@ -58,6 +58,8 @@ Sections in order. Each has a distinct *job* and — critically — a distinct
   with a desktop and a vertical mobile variant, a one-line `<figcaption>`, and a
   full `role="img"` aria-label text alternative.
 - CTAs: primary "Get started" (→ `#use`) + secondary "Read llms.txt".
+- Under the CTAs, a prominent open-source / MIT line linking the repo (see the
+  design-system skill) — not buried in the footer.
 
 ### 2. "Why this exists" — the need, then what the app gives
 - Layout: **two-column split**. Left = lead (kicker + a sharp headline naming the

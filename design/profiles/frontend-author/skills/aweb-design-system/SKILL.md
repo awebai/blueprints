@@ -49,6 +49,22 @@ footer partials by hand (byte-consistent markup).
   targets `scroll-margin-top` (~84px) so they clear it.
 - `.theme-toggle` swaps a moon/sun icon by theme.
 
+## Brand wordmarks and the nav
+
+- **The logo and the wordmarks are monospace.** The brand/logo (the app name) and
+  the `aweb` / `awid` wordmarks render in the system monospace (`--font-mono`). The
+  wordmarks also take the accent — a `.brand-mark` (monospace + `--accent`) — so the
+  protocol and identity names read as the brand they are, **wherever they appear**:
+  the header nav, body copy, and footer prose. `render_header` gives `aweb` / `awid`
+  nav links the brand-mark automatically; in body copy wrap them in
+  `<span class="brand-mark">`. Lowercase them — `aweb`, `awid` — never `AWEB`/`AWID`.
+- **The header nav carries only working, non-redundant links.** No link to a section
+  that no longer exists (a stale `#model`-style anchor is a bug — remove it). No
+  `llms.txt` nav link — the header control is the llms.txt affordance. The `aweb`
+  link belongs **in the nav**, not as a right-side button (set `header_actions=()`
+  when aweb is in the nav). So header-right is just the theme toggle, the GitHub
+  icon, and the llms.txt control.
+
 ## The standard llms.txt split control
 
 Every aweb page carries one standard control in the header — **last in
@@ -80,9 +96,10 @@ places, consistently:
   toolkit chrome renders it (`.gh-link`). Hugo sites: the same GitHub mark in the
   header partial. Use the logo, consistently — don't invent a text "Source" button
   where the others use the mark.
-- **An open-source / MIT line in the footer**, linking the repo — "Open source,
-  MIT-licensed — View on GitHub". Naapps get it from `source_url` (`.footer-oss`);
-  Hugo sites add the same line to the footer partial.
+- **An open-source / MIT line, prominent** — in the hero, under the CTAs, as a
+  visible accent link ("Open source, MIT-licensed — github.com/..."), not buried in
+  the footer. Put it in the hero body; the footer may also carry it (`.footer-oss`
+  from `source_url`), but the prominent placement is the hero.
 - **The README must match** — a one-line open-source/MIT statement near the top and
   a `## License` section pointing to `LICENSE`. Don't ship a public repo whose
   README reads as an internal or seed doc.
