@@ -50,11 +50,9 @@ artifact. Hit the origin directly where possible and check the thing you expect:
 - a version string or build id in the response or a health endpoint,
 - the changed markup in the served HTML.
 
-Use `curl` for the bytes:
-
-```
-curl -sS https://<origin-host>/<path> | grep -o '<the-expected-marker>'
-```
+Request the asset URL directly (with `curl`, `httpie`, or a browser) and confirm
+the expected marker is present in the bytes — the fingerprinted bundle name, a
+version string, or the changed markup.
 
 If the origin is stale, **the deploy never landed** — stop and redeploy from a
 clean build. Do not go looking at the public edge yet; a stale origin is a
