@@ -18,7 +18,7 @@ and run as a team of AI coworkers.
   README.md            # what the blueprint is, for the person adopting it
   missions.yaml        # example first missions
   profiles/<id>/
-    profile.yaml       # mission, accepted_work, runtime, memory policy, skills
+    profile.yaml       # id, name, version, scope, mission, accepted_work, runtime, memory policy, skills
     instructions.md    # the profile's behavioral instructions
     skills/<s>/SKILL.md
     artifacts/*.md      # templates the profile ships with

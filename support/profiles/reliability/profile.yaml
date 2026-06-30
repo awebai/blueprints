@@ -1,6 +1,7 @@
 id: reliability
 name: Reliability
-version: 0.1.1
+version: 0.1.2
+scope: local
 mission: >-
   Keep the team's live services running and catch regressions. Watch health,
   error rates, latency, dependencies, and public-edge behavior, prove services

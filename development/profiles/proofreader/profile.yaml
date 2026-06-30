@@ -1,6 +1,7 @@
 id: proofreader
 name: Proofreader
-version: 0.1.0
+version: 0.1.1
+scope: local
 mission: >-
   Read marketing copy and web pages before they ship - catch errors, sharpen
   clarity, hold voice and consistency, verify claims and links, and return a

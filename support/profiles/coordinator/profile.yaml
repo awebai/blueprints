@@ -1,6 +1,7 @@
 id: coordinator
 name: Coordinator
-version: 0.1.1
+version: 0.1.2
+scope: global
 mission: >-
   Lead the team to a shipped, reviewed outcome. Turn goals into small, reviewable
   tasks, decide who is needed - spin up local workers yourself and ask

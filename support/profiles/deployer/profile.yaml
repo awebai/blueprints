@@ -1,6 +1,7 @@
 id: deployer
 name: Deployer
-version: 0.1.1
+version: 0.1.2
+scope: local
 mission: >-
   Own releases end-to-end. Trigger clean builds, deploy through the target
   platform, manage build and edge caches, and verify the release is actually
