@@ -53,7 +53,7 @@ artifact. Hit the origin directly where possible and check the thing you expect:
 Use `curl` for the bytes:
 
 ```
-curl -sS https://ORIGIN_HOST/PATH | grep -o 'EXPECTED_MARKER'
+curl -sS https://<origin-host>/<path> | grep -o '<the-expected-marker>'
 ```
 
 If the origin is stale, **the deploy never landed** — stop and redeploy from a
