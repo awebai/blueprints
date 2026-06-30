@@ -4,7 +4,7 @@ description: >-
   Runs a live-service incident end to end - detect, triage by severity and
   impact, mitigate to restore service first, find the root cause, and land a
   durable follow-up fix. Use when a live service is failing, error rates or
-  latency spike, the AWID registry 503s, a deploy may have regressed, or the
+  latency spike, a dependency is unavailable, a deploy may have regressed, or the
   real URL is not working.
 ---
 
@@ -16,21 +16,21 @@ service first, understand it second, and make sure it can't recur the same way.
 ## Detect
 
 - Confirm the signal is real before raising it. **Reproduce it against the live
-  service** — the real URL, through the real CDN and edge — not localhost, not the
-  test suite.
+  service** — the real URL, through the real public delivery path — not localhost,
+  not the test suite.
 - Capture the evidence as you find it: the failing probe output, the status code,
   the log line, the error rate, the timestamp. You'll need it for triage and for
   the write-up.
-- Distinguish a self-healing blip from a sustained failure. The AWID registry
-  503s in bursts; a burst that clears in seconds is noise, a sustained 503 is an
-  incident. Watch the trend, not one sample.
+- Distinguish a self-healing blip from a sustained failure. Brief dependency
+  errors that clear in seconds may be noise; a sustained failure or rising trend
+  is an incident. Watch the trend, not one sample.
 
 ## Triage
 
 Set severity by **impact**, not by how alarming the alert looks.
 
 - **SEV-1** — customer-facing and broad: the live URL is down or erroring for
-  everyone, checkout fails, data is at risk. Page the human, mitigate now.
+  everyone, a critical flow fails, data is at risk. Page the human, mitigate now.
 - **SEV-2** — degraded or partial: elevated errors, slow latency, one feature
   broken, a subset of users affected. Mitigate promptly, escalate if it worsens.
 - **SEV-3** — minor or self-healing: a recovered burst, a cosmetic issue, no real

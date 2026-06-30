@@ -1,6 +1,6 @@
 id: aweb.support
 name: Support AI Team
-version: 0.1.0
+version: 0.1.1
 summary: The enablers and operators — a coordinator who plans, routes, and staffs the team, agent-resources for identity and provisioning, a deployer for releases, and a reliability lead for the live services.
 description: >-
   A first-party blueprint for the roles that enable and run a team rather than

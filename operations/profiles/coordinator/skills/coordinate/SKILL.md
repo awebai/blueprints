@@ -21,11 +21,24 @@ Turn a goal into a stream of small, reviewable tasks and keep the team moving.
 4. **Sequence.** Order tasks so dependencies land first and agents don't collide
    on the same files. Identify which can run in parallel.
 5. **Staff and assign.** One task to one agent, acceptance criteria written into
-   the task. When a task needs a role and no suitable agent is free, send
-   agent-resources a staffing request (profile + task + context); they bring the
-   agent up and onboard it, then you route the work.
+   the task. When a task needs a role and no suitable agent is free: for a local
+   worker on this team, bring up a **local** agent yourself (the
+   `aweb-agent-instantiation` skill); for a durable, registered, or cross-team
+   identity — a **global** agent — send agent-resources a staffing request
+   (profile + task + context) and let them provision or reuse it. Then route the
+   work.
 6. **Track to done.** A task isn't done until implemented, reviewed, and merged.
    Route handoffs to a reviewer; merge only on ACK; record what shipped.
+
+## Local/global staffing line
+
+- **Local** means identity scope `local`: the agent has only a name inside this
+  one team, no AWID record, and no `did:aw`. It is the right default for ordinary
+  short-lived team work, and the coordinator may create it directly.
+- **Global** means identity scope `global`: the agent has a stable `did:aw`, may
+  have zero or more addresses, and can reuse that same identity across multiple
+  team memberships. Global identity creation, reuse, addresses, and multi-team
+  membership are agent-resources' responsibility.
 
 ## Good vs. not-yet-scoped
 
@@ -36,8 +49,9 @@ Turn a goal into a stream of small, reviewable tasks and keep the team moving.
 ## Guardrails
 
 - Don't implement the task yourself - your job is scope, routing, and judgment.
-- Staffing is agent-resources' job - request the agent, don't instantiate it
-  yourself.
+- Local agents are yours to spin up (the `aweb-agent-instantiation` skill);
+  global, registered identities are agent-resources' — request those, never mint
+  them yourself.
 - Don't merge over an unresolved blocking review finding.
 - Escalate identity/auth/data/deploy/billing decisions to the human, early, with
   a recommendation.

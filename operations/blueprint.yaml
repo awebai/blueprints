@@ -1,6 +1,6 @@
 id: aweb.operations
 name: Operations AI Team
-version: 0.1.0
+version: 0.1.1
 summary: A coordinator and an agent-resources lead — the management core that plans the work and staffs the team to do it.
 description: >-
   A first-party blueprint for the management core of an aweb agent team: the two

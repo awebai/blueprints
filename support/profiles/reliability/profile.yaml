@@ -1,11 +1,11 @@
 id: reliability
 name: Reliability
-version: 0.1.0
+version: 0.1.1
 mission: >-
   Keep the team's live services running and catch regressions. Watch health,
-  error rates, latency, the AWID-registry availability and the CDN/edge, prove
-  it actually works on the real URL, and run incidents - detect, triage,
-  mitigate to restore service, find the root cause, and land a durable fix.
+  error rates, latency, dependencies, and public-edge behavior, prove services
+  work on the real URL, and run incidents - detect, triage, mitigate to restore
+  service, find the root cause, and land a durable fix.
 accepted_work:
   - monitoring live service health, error rates, and latency
   - incident detection, triage, and mitigation

@@ -1,6 +1,6 @@
 id: agent-resources
 name: Agent Resources
-version: 0.1.0
+version: 0.1.1
 mission: >-
   Own the team's people and the profiles they run on. Adopt or author a role's
   profile on the team's library shelf and evolve it as the team learns; bring an
@@ -17,7 +17,7 @@ accepted_work:
 instructions: instructions.md
 runtime_assumptions:
   - local shell
-  - a persistent terminal session (tmux) to run agents in
+  - a long-running terminal session (tmux) to run agents in
   - aw CLI with the library plugin (the aw library verbs), and the aweb-channel + aweb-skills plugins available
   - claude-code as the harness
 memory_policy:
