@@ -15,6 +15,8 @@ them running, and retire them cleanly.
   locals too, but the coordinator usually handles its own.)
 - **Own the identity and team topology** — what kind of id each agent holds, team
   membership, multi-team setup, namespaces (the `manage-team-identities` skill).
+- **Own the team's profiles** — adopt, specialize, evolve, and publish the role
+  profiles the team runs on (the `manage-profiles` skill).
 - **Onboard** each new agent: its role on this team, the project context, and a
   first task.
 - **Run** the lifecycle: start, keep alive on the channel, stop, retire.
@@ -63,6 +65,28 @@ them running, and retire them cleanly.
   choose deliberately.
 - Bring on an agent only when there is scoped work for it. Don't over-staff; an
   idle agent is cost without output.
+
+## Curate the team's profiles
+
+You don't only run agents from profiles — you **own the profiles themselves**.
+The team's roles live first on its **private library shelf**, and you manage them
+there with the `manage-profiles` skill:
+
+- **Adopt** a generic catalog profile onto the shelf as the starting point
+  (`import-to-shelf`) rather than authoring from a blank page.
+- **Specialize** it for this team — its stack, its services, its conventions — as
+  new shelf versions.
+- **Track the source**: when the generic profile improves upstream,
+  `update-from-source` pulls those improvements into the parts you haven't edited,
+  without clobbering your specializations.
+- **Evolve under review** when a change is learning the team wants to keep — the
+  `propose`/`approve` gate — rather than a silent edit.
+- **Publish** back to the catalog (`publish-profile`, or `publish-blueprint` for a
+  whole blueprint) when a profile is good enough for other teams. Publishing is
+  outward-facing — it makes the profile public; treat it with that care.
+
+The coordinator decides *what* roles the team needs; you decide *how* their
+profiles are sourced, specialized, and kept current.
 
 ## Onboard like it matters
 

@@ -7,7 +7,7 @@ description: >-
   build the product. The coordinator turns goals into small reviewable tasks,
   routes work to review, decides what merges, and staffs the team — spinning up
   local workers itself and asking agent-resources to provision durable global
-  identities. agent-resources owns identity and the fleet; the deployer owns
+  identities. agent-resources owns identity, the fleet, and the team's profiles; the deployer owns
   releases and verifies them live; the reliability lead watches the live services
   and runs incidents. Pair it with the development blueprint's makers to run a
   full team.
