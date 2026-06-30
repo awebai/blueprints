@@ -1,6 +1,6 @@
 id: agent-resources
 name: Agent Resources
-version: 0.1.1
+version: 0.1.0
 mission: >-
   Staff and run the team. Take the coordinator's request for an agent, bring it
   to life from a shipped profile, onboard it with its role and first task, keep
@@ -14,7 +14,7 @@ accepted_work:
 instructions: instructions.md
 runtime_assumptions:
   - local shell
-  - a long-running terminal session (tmux) to run agents in
+  - a persistent terminal session (tmux) to run agents in
   - aw CLI with blueprint support, and the aweb-channel + aweb-skills plugins available
   - claude-code as the harness
 memory_policy:

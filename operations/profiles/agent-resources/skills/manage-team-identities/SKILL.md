@@ -1,6 +1,6 @@
 ---
 name: manage-team-identities
-description: Sets up and administers the identity and team topology behind a fleet of agents - creating and hosting teams, adding local or global agent members, joining global identities to more teams, inspecting identity scope, organizing namespaces and addresses, and handling controller keys and danger zones safely. Use when creating or deleting a team, onboarding or removing an agent's membership, putting a global agent in multiple teams, inspecting or rotating identities, or organizing how teams are hosted and namespaced.
+description: Sets up and administers the identity and team topology behind a fleet of agents - creating and hosting teams, adding an agent to one or more teams, inspecting what kind of identity an agent holds, organizing namespaces, and handling controller keys and danger zones safely. Use when creating or deleting a team, onboarding or removing an agent's membership, putting an agent in multiple teams, inspecting or rotating identities, or organizing how teams are hosted and namespaced.
 ---
 
 # Manage Team Identities
@@ -22,17 +22,17 @@ This skill is the operator's view: create, populate, organize, inspect, gate.
 - **`aw team ...`** — the everyday surface: `create`, `add`, `invite`, `join`,
   `list`, `switch`, `leave`, `remove-agent`. These *do the whole thing* (e.g.
   `aw team create` yields a team you can act in).
-- **`aw id team ...` / `aw id namespace ...` / `aw id address ...`** — the
-  protocol/admin controller surface: lower-level register/sign/revoke primitives
-  (`aw id team create` is register-only; `aw id team add-member`,
-  `remove-member`, `delete`; namespace and address controller ops).
+- **`aw id team ...` / `aw id namespace ...`** — the protocol/admin controller
+  surface: lower-level register/sign/revoke primitives (`aw id team create` is
+  register-only; `aw id team add-member`, `remove-member`, `delete`; namespace
+  controller ops).
 
 ## Three operations, not one
 
 Team lifecycle is three **separable** steps; don't conflate them:
 
 1. **Provision an identity** — a signing keypair (`did:key`), optionally
-   registered globally (`did:aw`). Address claims are optional.
+   registered globally (`did:aw` + address). Happens ~once.
 2. **Create a team** — register a team you control. Repeatable.
 3. **Populate it** — add or invite members. Repeatable.
 
@@ -43,11 +43,11 @@ repeatable operations for an identity that already exists.
 
 Two independent axes — don't infer one from the other:
 
-- **Identity scope: local vs global.** A *local* identity is name-only inside one
-  team: no AWID record, no `did:aw`, exactly one team membership, meaningful only
-  in that team/workspace. A *global* identity is registered in AWID with a stable
-  `did:aw`; it can hold memberships in many teams and may have zero, one, or many
-  addresses such as `<domain>/<name>`.
+- **Local vs global.** *Local* = workspace-bound, alias-only, no AWID record, no
+  `did:aw`, `lifetime: ephemeral`; meaningful only inside its team and machine.
+  *Global* = registered in AWID with a stable `did:aw` + address(es)
+  `<domain>/<name>`, `lifetime: persistent`; survives key rotation and machine
+  moves.
 - **Self-custodial vs custodial.** *Self-custodial* keeps the private key locally
   in `.aw/signing.key` (rotate with `aw id rotate-key`). *Custodial* lets aweb
   hold the encrypted key; there is **no local CLI command to rotate it** — it's a
@@ -59,11 +59,11 @@ global identities have a `did:aw`. (`did:web` is **not** part of this system.)
 
 ```bash
 aw whoami     # who am I, local/global, custody, inbound mode
-aw id show    # name, address(es), did_aw, did_key, custody
+aw id show    # alias, address, did_aw, did_key, custody
 ```
 
-`did_aw` present → **global** (addresses are optional); only a `name` and no
-`did_aw` → **local**. The `custody` field says self vs custodial.
+`did_aw`/address present → **global**; only an `alias` → **local**. The `custody`
+field says self vs custodial.
 
 ## Custody decides what you can do
 
@@ -118,32 +118,11 @@ team** — those keys are your authority over the namespace/team.
 
 Adding members is **separate** from create:
 
-- **`aw team add <name>@<profile> ...`** — mint new team-owned **local** agent
-  members into the active team (identity scope: local; one team only).
+- **`aw team add <a> <b> ...`** — mint new team-owned agent members into the
+  active team (each gets an identity + team cert + home).
 - **`aw team invite` → `aw team join <token>`** — bring in a separate
-  workspace/machine/external identity. Use explicit scope on join:
-  - `aw team join <token> --local --name <name>` creates or uses a local identity
-    only when no global identity is present and no other team is already joined.
-  - `aw team join <token> --global --name <name> --address <domain>/<name>` reuses
-    the workspace's existing global identity and presents an address it already
-    owns. **Interim hosted caveat:** hosted `--global` currently requires
-    `--address` until AC .12 lands.
-  - `aw team join <token> --global --name <name> --no-address` creates a
-    did:aw-only membership on self-controlled/BYOT teams; hosted support is
-    coming with AC .12.
-- **`aw id team accept-invite <token> ...`** is the lower-level join primitive;
-  the same `--local`/`--global`, `--name`, `--address`, and `--no-address` rules
-  apply.
-
-Important invariants:
-
-- Scope is explicit: `--address` does **not** imply global.
-- `--global` reuses the existing global `did:aw`; it does **not** mint a new
-  identity per team. If the workspace has no global identity, it fails closed and
-  points you to `aw id create` / `aw init` first.
-- `--local` fails closed when a global identity is present; use `--global` to
-  reuse it, or use a fresh workspace for a local one.
-- A local identity belongs to exactly one team.
+  workspace/machine/external identity (someone who holds their own key). (The
+  admin primitive underneath the joiner side is `aw id team accept-invite`.)
 
 **Who signs the membership certificate** (the credential — a signed statement
 that a `did:key` belongs to the team, stored at `.aw/team-certs/*.pem`):
@@ -158,42 +137,31 @@ authority lives with whoever holds the controller key. The controller-level
 primitives are `aw id team add-member` (cross-machine BYOT — signs a cert with
 the team key) and `aw id team remove-member` (revokes it).
 
-## Put a global agent in more than one team
+## Put an agent in more than one team
 
-One **global** identity holds many memberships at once — one cert per team, all
-in `.aw/team-certs/`. It is the same `did:key`/`did:aw`; joining another team
-reuses that existing global identity. The active team decides the default
-coordination boundary:
+One identity holds **many memberships at once** — one cert per team, all in
+`.aw/team-certs/`. It's the same `did:key`/`did:aw`; the active team decides the
+default coordination boundary:
 
 ```bash
 aw team list                       # memberships + which is active
 aw team switch <team>:<domain>     # change the default
 aw <verb> --team <team>:<domain>   # override for one command only
-aw team join <token> --global --name <name> --address <domain>/<name>
+aw team join <token>               # add another team
 aw team leave <team>:<domain>      # drop one (refuses to leave the only team)
 ```
 
-A local identity cannot do this: it is single-team by definition. Team ids are
-`<name>:<domain>` (name first). **Danger:** acting in the wrong active team sends
-messages, claims, and locks to the wrong boundary; names only resolve within the
-active team. Confirm the active team before relying on a member name.
+Team ids are `<name>:<domain>` (name first). **Danger:** acting in the wrong
+active team sends messages, claims, and locks to the wrong boundary; aliases only
+resolve within the active team. Confirm the active team before relying on an
+alias.
 
-## Organize namespaces and addresses
+## Organize the topology
 
 - A **namespace** is a DNS-verified domain controlled by a namespace controller
   key; the reserved `local` namespace works without DNS for dev/bootstrap.
 - Teams nest under namespaces (`<name>:<domain>`); one namespace holds many teams
   — just repeat `aw team create`.
-- **Addresses are optional claims on a global identity**, not the thing that makes
-  it global. A global identity can have zero addresses.
-- Claiming an address requires **namespace-controller authority** (hosted via AC,
-  or self-controlled with the controller key). Team membership alone does not
-  grant address authority.
-- `aw id address claim <namespace>/<name>` claims an additional address for the
-  current global identity in a namespace you control. It is atomic: no local
-  state changes on failure. Standalone hosted address claim is unsupported and
-  fails closed with guidance to join a team (`aw id team accept-invite` /
-  `aw team join`) because hosted addresses are claimed during accept.
 - The **controller-key hierarchy** is the authority chain: parent
   (`*.aweb.ai`, hosted) → namespace controller (`~/.awid/controllers/`) → team
   controller (`~/.awid/team-keys/`). These are authority keys, not app config.
@@ -208,9 +176,7 @@ active team. Confirm the active team before relying on a member name.
 | Resolve a stable id to its key | `aw id resolve <did_aw>` |
 | Full audit log of an identity | `aw id verify <did_aw>` |
 | Resolve a namespace address | `aw id namespace resolve <domain>/<name>` |
-| Addresses for my current global identity | `aw id addresses` |
 | Addresses for an id or namespace | `aw id addresses <did_aw \| domain>` |
-| Claim an address in a namespace you control | `aw id address claim <namespace>/<name>` |
 
 ## The danger zones — gate hard, escalate
 
@@ -234,5 +200,5 @@ before executing. In particular:
 
 A plain member can `list`, `switch`, `leave`, `join`, and inspect; anything that
 **creates, deletes, or signs/revokes** (team create/delete, add/remove member,
-rotation, visibility, address claim) needs controller authority and is the
-operator's gated work.
+rotation, visibility) needs controller authority and is the operator's gated
+work.

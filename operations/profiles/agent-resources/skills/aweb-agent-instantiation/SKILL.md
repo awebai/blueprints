@@ -10,9 +10,9 @@ Use this skill to turn a shipped blueprint profile into a **live teammate**:
 materialize its home, run it on the aweb channel, and hand it work over mail.
 This is the **mechanics** layer. The role using this skill supplies the staffing
 *judgment* — when to staff, who, and how to onboard. The **coordinator** uses it
-for local, name-only agents; the **AR (agent resources)** role uses it for the
-same local mechanics and additionally owns global, identity-bearing staffing
-through `manage-team-identities`. This skill is the *how*.
+for local, no-AWID agents; the **AR (agent resources)** role uses it for the same
+local mechanics and additionally owns global, identity-bearing staffing through
+`manage-team-identities`. This skill is the *how*.
 
 For team coordination (tasks, work discovery, locks) load `aweb-coordination`;
 for mail/chat policy load `aweb-messaging`. This skill assumes those and covers
@@ -26,8 +26,8 @@ mail, acts as its profile, and replies.
 
 ## Preconditions — check, don't assume
 
-- You can run a **long-running TTY session** per agent (tmux is shown below; any
-  long-running terminal works). The agent runs `claude` interactively and **dies
+- You can run a **persistent TTY session** per agent (tmux is shown below; any
+  persistent terminal works). The agent runs `claude` interactively and **dies
   without a TTY** — that is why the supervised path does not work.
 - A recent `aw` on `PATH` with blueprint support (`aw team add … --runtime`);
   the agent itself uses the system `aw` for mail.
@@ -41,7 +41,7 @@ Set the variables once. `CHANNEL` is the single line that changes when the
 channel is allowlisted (see "Deterministic path"):
 
 ```bash
-NAME=...                       # the new agent's name in this team
+NAME=...                       # the new agent's alias
 PROFILE=...                    # e.g. aweb.engineering/developer
 HOME_DIR=...                   # where this agent's home lives
 CHANNEL="--dangerously-load-development-channels plugin:aweb-channel@awebai-marketplace"
@@ -58,14 +58,13 @@ coordination block), `CLAUDE.md` symlink, `.aw/` (identity + team-cert + the
 evolvable profile), the wake hook. Runtime is the explicit `--runtime` (never
 inferred from the profile).
 
-**Scope — local agents only.** `aw team add` defaults to `--local` (identity
-scope: local), which creates a name-only member scoped to exactly this team and
-is the boundary of this skill. Do **not** pass `--global`. Global agents (a
-stable `did:aw`, optional addresses, reusable memberships across teams) are a
-separate identity-level operation owned by the **AR** role via the
-`manage-team-identities` skill — not this one. Staffing with this skill creates
-local team members; minting or reusing global identities is a distinct, gated
-responsibility.
+**Scope — local agents only.** `aw team add` defaults to `--local` (a
+team-scoped agent identity), which is exactly what staffing a team needs and is
+the boundary of this skill. Do **not** pass `--global`. Global,
+AWID-identity-backed agents (`aw team add --global`, or `aw id team add-member
+--global`) are a separate identity-level operation owned by the **AR** role via
+the `manage-team-identities` skill — not this one. Staffing creates local
+team members; minting global identities is a distinct, gated responsibility.
 
 ### 2. Remove the materialized `.mcp.json` — workaround
 
@@ -78,7 +77,7 @@ The channel is a Claude Code **plugin** (step 3), not the npx MCP server
 a non-working npx MCP server into the home; remove it. The step disappears when
 that bug is fixed.)*
 
-### 3. Start the agent in a long-running TTY session
+### 3. Start the agent in a persistent TTY session
 
 ```bash
 tmux new-window -n "$NAME"
