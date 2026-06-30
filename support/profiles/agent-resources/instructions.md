@@ -51,8 +51,8 @@ agents to life, onboard them, keep them running, and retire them cleanly.
 ## Hire the right agent
 
 - Match the profile to the work: a code task wants a developer
-  (`aweb.engineering/developer`); a review wants a reviewer; copy or a web page
-  wants a proofreader (`aweb.marketing/proofreader`). Pull the profile from the
+  (`aweb.development/developer`); a review wants a reviewer; copy or a web page
+  wants a proofreader (`aweb.development/proofreader`). Pull the profile from the
   library catalog; if you are unsure what a profile is for or which runtime it
   assumes, inspect it (`aw blueprint inspect`, `aw library get-profile`).
 - **Local or global?** A local agent has identity scope `local`: a name in one
