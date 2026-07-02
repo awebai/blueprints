@@ -6,24 +6,33 @@ and run as a team of AI coworkers.
 
 ## Blueprints
 
-- [`engineering/`](engineering/) — **Engineering AI Team**: a
-  coordinator, developers, and a reviewer that plan, build, and review real repo
-  work as a team.
+- [`team/`](team/) — **aweb AI Team** (`aweb.team`): the default public
+  blueprint — a complete team. A coordinator who plans and routes, developers
+  and a reviewer who build and gate the work, agent-resources for identity and
+  provisioning, and opt-in roles for frontend, copy, releases, and reliability.
+
+Deprecated, pending removal from the catalog once `aweb.team` is the shipped
+default: [`development/`](development/) and [`support/`](support/) — their
+profiles are merged into `team/`.
 
 ## Blueprint layout
 
 ```
 <blueprint>/
-  blueprint.yaml            # blueprint id, version, the profiles it offers, expected apps
+  blueprint.yaml       # blueprint id, version, the profiles it offers with
+                       # recommended counts, expected apps, first-mission examples
   README.md            # what the blueprint is, for the person adopting it
-  missions.yaml        # example first missions
   profiles/<id>/
     profile.yaml       # id, name, version, scope, mission, accepted_work, runtime, memory policy, skills
     instructions.md    # the profile's behavioral instructions
     skills/<s>/SKILL.md
-    artifacts/*.md      # templates the profile ships with
+    artifacts/*.md     # templates the profile ships with
 ```
 
-A blueprint is published to Library via its canonical
-`import-payload.v1` digest; adopting it copies the chosen profiles into a team's
-private shelf, where the team evolves its own minted versions.
+A blueprint is published to Library via its canonical `import-payload.v1`
+digest; adopting it copies the chosen profiles into a team's private shelf,
+where the team evolves its own minted versions. Tags are set at publish time,
+not in `blueprint.yaml`.
+
+`shelf-notes/` holds org-specific notes stripped from public profiles, waiting
+to be adopted onto our private shelf — see its README.
