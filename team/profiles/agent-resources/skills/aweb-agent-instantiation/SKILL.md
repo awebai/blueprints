@@ -1,14 +1,15 @@
 ---
 name: aweb-agent-instantiation
-description: This skill should be used when staffing a team — instantiating, starting, onboarding, or retiring an agent built from a shipped blueprint profile. Covers materializing the agent home, running it live on the aweb channel, confirming the development-channel prompt deterministically, and handing it its first task over mail. The mechanics that turn a profile into a working teammate.
-allowed-tools: "Bash(aw *), Bash(tmux *), Bash(claude *), Bash(rm *), Bash(mkdir *)"
+description: This skill should be used when staffing a team — instantiating, refreshing, running, onboarding, or retiring an agent built from a shipped blueprint profile. Covers materializing the agent home with aw team add, launching materialized homes with aw team up, refreshing them after profile evolution, removing team membership, and handing the agent its first task over mail. The mechanics that turn a profile into a working teammate.
+allowed-tools: "Bash(aw *), Bash(rm *), Bash(mkdir *)"
 ---
 
 # aweb Agent Instantiation
 
 Use this skill to turn a shipped blueprint profile into a **live teammate**:
-materialize its home, run it on the aweb channel, and hand it work over mail.
-This is the **mechanics** layer. The role using this skill supplies the staffing
+materialize its home, bring the local team up, refresh the home when its profile
+improves, and retire it cleanly when the work is done. This is the
+**mechanics** layer. The role using this skill supplies the staffing
 *judgment* — when to staff, who, and how to onboard. The **coordinator** uses it
 for local, name-only agents; the **AR (agent resources)** role uses it for the
 same local mechanics and additionally owns global, identity-bearing staffing
@@ -16,7 +17,7 @@ through `manage-team-identities`. This skill is the *how*.
 
 For team coordination (tasks, work discovery, locks) load `aweb-coordination`;
 for mail/chat policy load `aweb-messaging`. This skill assumes those and covers
-only the instantiate-and-run mechanics they don't.
+only the instantiate/run/refresh/remove mechanics they do not.
 
 ## What you produce
 
@@ -26,127 +27,174 @@ mail, acts as its profile, and replies.
 
 ## Preconditions — check, don't assume
 
-- You can run a **long-running TTY session** per agent (tmux is shown below; any
-  long-running terminal works). The agent runs `claude` interactively and **dies
-  without a TTY** — that is why the supervised path does not work.
-- A recent `aw` on `PATH` with blueprint support (`aw team add … --runtime`);
-  the agent itself uses the system `aw` for mail.
-- `claude` (Claude Code) on `PATH`, and the **aweb-channel plugin** available
-  from its marketplace (`claude plugin list` shows `aweb-channel`).
+- You can run a local tmux session. `aw team up` is the canonical launcher and
+  creates one tmux window per supported materialized agent home.
+- Use the about-to-release `aw` that includes `aw team up`. These skills ship
+  with that release; older installed `aw 1.30.0` help is not authoritative for
+  the run flow.
 - You are a member of the team you are staffing into.
 
-## The sequence
+## The add spec (aw 1.30+)
 
-Set the variables once. `CHANNEL` is the single line that changes when the
-channel is allowlisted (see "Deterministic path"):
+`aw team add` accepts these everyday agent specs:
+
+- `[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME]` — materialize a profile
+  from a public blueprint. The blueprint defaults to `aweb.team` when omitted,
+  and profile-only selectors can use `--blueprint` / `AWEB_BLUEPRINT`.
+- `NAME[:local|global]` — create an empty-profile home.
+- Omitted names are server-authoritative; do not invent the next classic name
+  locally when the command can choose it.
+- `=RUNTIME` selects the materialization target (`claude-code`, `pi`, `codex`,
+  or `local-shell`). Runtime binds at **materialize** time: a `pi` home differs
+  from a `claude-code` home.
+- `--home <dir>` writes a single agent to a specific home directory.
+- `--layout-only` creates the `agents/instances/<name>` layout without creating
+  identity state; use only for deliberate layout preparation, not normal
+  staffing.
+
+**Scope — local agents only.** `aw team add` defaults to local identity scope,
+which creates a name-only member scoped to exactly this team and is the boundary
+of this skill. Do **not** pass `--global` and do **not** use the `:global` spec
+suffix here. Global agents (a stable `did:aw`, optional addresses, reusable
+memberships across teams) are a separate identity-level operation owned by the
+**AR** role via the `manage-team-identities` skill.
+
+## Create local agents
+
+Materialize homes first. The run step is separate and handled by `aw team up`.
+Keeping this as a two-step flow lets you inspect, refresh, or add more homes
+before launching.
 
 ```bash
-NAME=...                       # the new agent's name in this team
-PROFILE=...                    # e.g. aweb.team/developer
-HOME_DIR=...                   # where this agent's home lives
-CHANNEL="--dangerously-load-development-channels plugin:aweb-channel@awebai-marketplace"
+aw team add alice@aweb.team/developer:local=claude-code
+aw team add bob@aweb.team/reviewer:local=pi
 ```
 
-### 1. Materialize the home from the profile
+For one explicit target directory:
 
 ```bash
-aw team add "$NAME@$PROFILE" --runtime claude-code --home "$HOME_DIR"
+aw team add "alice@aweb.team/developer:local=claude-code" --home "agents/instances/alice"
 ```
 
-Produces a working home: `AGENTS.md` (profile body + the injected aweb
-coordination block), `CLAUDE.md` symlink, `.aw/` (identity + team-cert + the
-evolvable profile), the wake hook. Runtime is the explicit `--runtime` (never
-inferred from the profile).
+Materialization produces `AGENTS.md` (profile body + the injected aweb
+coordination block), `CLAUDE.md` symlink for Claude Code homes, `.aw/` identity
+and team-cert state, and `.aw/profile/ref.json` recording the profile provenance,
+digest, and runtime kind. The fixed about-to-release materializer installs the
+right channel integration.
 
-**Scope — local agents only.** `aw team add` defaults to `--local` (identity
-scope: local), which creates a name-only member scoped to exactly this team and
-is the boundary of this skill. Do **not** pass `--global`. Global agents (a
-stable `did:aw`, optional addresses, reusable memberships across teams) are a
-separate identity-level operation owned by the **AR** role via the
-`manage-team-identities` skill — not this one. Staffing with this skill creates
-local team members; minting or reusing global identities is a distinct, gated
-responsibility.
-
-### 2. Remove the materialized `.mcp.json` — workaround
+Inspect a home's recorded profile provenance before you run or refresh it:
 
 ```bash
-rm -f "$HOME_DIR/.mcp.json"
+aw agent profile show alice
 ```
 
-The channel is a Claude Code **plugin** (step 3), not the npx MCP server
-`aw team add` writes. *(Workaround for an open `SetupChannelMCP` bug — it writes
-a non-working npx MCP server into the home; remove it. The step disappears when
-that bug is fixed.)*
+## Run the materialized team with `aw team up`
 
-### 3. Start the agent in a long-running TTY session
+The canonical launcher is:
 
 ```bash
-tmux new-window -n "$NAME"
-tmux send-keys -t "$NAME" "cd $HOME_DIR && claude --dangerously-skip-permissions $CHANNEL" Enter
+aw team up --dry-run
+aw team up
 ```
 
-Plugin load takes ~15-25s.
+`aw team up` is an operator-managed tmux launcher. It scans
+`agents/instances/<name>` for materialized homes, reads each home's runtime from
+`.aw/profile/ref.json`, and starts one tmux window per supported interactive
+runtime. It is an idempotent reconcile: homes already running are skipped; run it
+again after materializing or refreshing more homes.
 
-### 4. Confirm the development-channel prompt — read before you send
+Useful controls:
 
 ```bash
-tmux capture-pane -t "$NAME" -p     # 1. confirm the prompt is showing
-tmux send-keys   -t "$NAME" Enter   # 2. option 1 ("local development") is pre-highlighted -> Enter
-tmux capture-pane -t "$NAME" -p     # 3. verify it advanced
+aw team up --session <name>      # choose the tmux session name
+aw team up --no-attach           # start/reconcile but do not attach
+aw team up --attach              # attach/switch after launch
+aw team up --force               # ignore the active-home running-process check
+aw team up --recreate            # kill and recreate the tmux session
 ```
 
-Success shows `messages from plugin:aweb-channel@… inject directly in this
-session` and `bypass permissions on`. **Never fire the key blind** — capture,
-verify the prompt text, send, capture again. The prompt is a numbered selector
-(`1. I am using this for local development` / `2. Exit`) with option 1
-pre-highlighted, so the key is **Enter**, not `y`. (When the channel is
-allowlisted this whole step is gone — see below.)
+`aw team up` preflights the channel/runtime itself:
 
-### 5. Onboard over mail — then leave the TTY alone
+- For `claude-code`, it ensures the Claude Code `aweb-channel` plugin is
+  installed, launches Claude with the aweb channel and
+  `--dangerously-skip-permissions`, and auto-answers the known trust-folder and
+  development-channel prompts.
+- For `pi`, it ensures `npm:@awebai/pi@latest` is installed and launches `pi
+  --approve` in the agent home.
+
+Supported launch runtimes are `claude-code` and `pi`. `codex` and `local-shell`
+can be materialized, but they are not launched by `aw team up`; start those
+manually from the materialized home if you intentionally use them.
+
+After launch, onboard over mail and leave the TTY alone:
 
 ```bash
-aw mail send --to "$NAME" --subject "onboarding" --body "<role + project context + first scoped task>"
+aw mail send --to "alice" --subject "onboarding" --body "<role + project context + first scoped task>"
 ```
 
 The channel injects the mail; the agent wakes, acts as its profile, and replies.
 From here coordinate only over mail/chat (`aweb-messaging`) — never by driving
 the TUI.
 
-## Guardrails — do NOT use these (each is a known dead-end)
+## Refresh an existing agent after profile evolution
 
-- **`aw agent start`** — launches `claude` with no TTY and no prompt; it falls
-  into `--print` mode and dies with `Input must be provided … --print`. It
-  cannot run an interactive agent.
-- **`aw run`** — runs the agent, but is out of scope for this flow.
-- **The materialized `.mcp.json`** — the wrong channel mechanism; remove it
-  (step 2). The live agents have no `.mcp.json`.
-
-## Deterministic path — no prompt
-
-The development-channel confirmation in step 4 has **no suppressing flag or env**
-— it is a deliberate research-preview gate (verified against `claude --help`,
-the plugin/marketplace subcommands, the trust config, and the claude binary).
-When `aweb-channel` is on Claude Code's channel allowlist, change the single
-`CHANNEL` line to:
+A running home does **not** pick up shelf/profile changes just because a profile
+proposal was approved. Refresh is the closing step of the learning loop:
 
 ```bash
-CHANNEL="--channels plugin:aweb-channel@awebai-marketplace"
+aw team refresh <name>
 ```
 
-An approved channel loads with **no prompt** and step 4 disappears entirely.
-That is the only line that changes.
+`aw team refresh <name>` re-materializes `agents/instances/<name>` from the
+latest version of the profile recorded in that home's `.aw/profile/ref.json`.
+It reads the recorded profile ref locally and never asks a remote service which
+profile to use. It prunes the managed set, preserves local state outside that
+managed set, updates `.aw/profile/ref.json`, and is a no-op when the digest is
+unchanged.
 
-## Lifecycle
+Upstream blueprint improvements are a separate, composable step: pull them onto
+the team's private shelf first with the Library plugin, then refresh the home:
 
-- The agent is the `claude` process in its TTY session. Stop/retire it by
-  `/quit` in the pane or closing the window. There is no `aw agent stop` for
-  this path (it supervised a bare process, which does not work — see guardrails).
-- The home persists; restarting is steps 3-4 again (the confirmation recurs each
-  start until allowlisted).
+```bash
+aw library update-from-source --profile_ref <profile_ref>
+aw team refresh <name>
+```
+
+Re-run `aw team up` after refresh. It reconciles idempotently and starts only
+homes that are not already running; use `--force` or `--recreate` deliberately
+when you need to restart a running home.
+
+## Remove / retire an agent
+
+Removal is a lifecycle step, not just a process cleanup.
+
+1. **Stop the runtime first.** In Claude Code use `/quit`, or close the tmux
+   window/pane. For pi, quit/close that interactive process.
+2. **Remove team membership with the everyday verb:**
+
+   ```bash
+   aw team remove-agent <member-address>
+   ```
+
+   This is revocation only: customer-controlled teams revoke with the local team
+   controller key; hosted aweb.ai teams use the cloud-mediated controller revoke
+   endpoint.
+3. **Decide deliberately what to do with the home directory.** `aw team
+   remove-agent` does not delete the home. The home persists by default for
+   audit/recovery. Deleting it is separate and irreversible; do it only when the
+   team explicitly wants the local files gone.
+
+## Guardrails — do NOT use these (each is a known dead-end)
+
+- Earlier per-agent launcher commands are gone; `aw team up` is the only run
+  path. Launching an interactive runtime detached, without a TTY and the team-up
+  channel preflight, does not work for Claude Code or pi.
+- **`--global` or `:global` in this skill** — global staffing belongs in
+  `manage-team-identities`, not the local instantiation flow.
 
 ## References
 
-- `docs/restructuring/agent-instantiation-runbook.md` (aweb repo) — the source
-  runbook with the full evidence trail and open issues.
+- `docs/running-agents.md` and `docs/team-blueprints-sot.md` (aweb repo) — the
+  about-to-release run/materialization contract.
 - The **AR (agent resources)** blueprint profile — the role that orchestrates
   this skill: when to staff, onboarding content, roster tracking, retire.

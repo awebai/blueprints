@@ -64,12 +64,7 @@ files. Source provenance, tags, and per-part baselines carry forward.
 When the generic profile you adopted improves upstream, pull those improvements
 without losing your edits:
 
-`aw library update-from-source <profile_ref>` runs a **per-part 3-way merge** — it
-pulls upstream changes only into the parts you have **not** edited locally, and
-never clobbers a part you have evolved. A real merge mints a new version and
-advances the source pin; if nothing is pullable it is a no-op. This is how an
-adopted profile stays current with its generic base while keeping our
-specializations.
+`aw library update-from-source --profile_ref <profile_ref>` is a Library plugin verb (manifest-dispatched after `aw plugin install`). It runs a **per-part 3-way merge** — pulling upstream changes only into the parts you have **not** edited locally, and never clobbering a part you have evolved. A real merge mints a new version and advances the source pin; if nothing is pullable it is a no-op. This is how an adopted profile stays current with its generic base while keeping our specializations.
 
 ## The learning gate: propose / approve
 
@@ -84,6 +79,31 @@ Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
 Use this when a profile should evolve **under review** rather than by a direct
 `shelf-version` write — the agent proposes, a reviewer approves.
+
+## Apply the approved version to a running home
+
+A proposal approval or `update-from-source` merge mints a new shelf profile
+version, but running agents keep using the old materialized files until their
+home is refreshed. Close the loop explicitly:
+
+```bash
+aw team refresh <name>
+```
+
+`aw team refresh <name>` reads the home's recorded `.aw/profile/ref.json`, pulls
+the latest shelf version for that profile, and re-materializes the home. It never
+asks a remote service which profile the agent should use. It prunes the managed
+set, preserves local state outside that set, updates `.aw/profile/ref.json`, and
+is a no-op when the digest is unchanged. If you are pulling upstream blueprint
+improvements, install/use the Library plugin and do that first, then refresh:
+
+```bash
+aw library update-from-source --profile_ref <profile_ref>
+aw team refresh <name>
+```
+
+Without the refresh, the approved improvement exists on the shelf but the live
+agent keeps running the previous home.
 
 ## Publish to the catalog
 
