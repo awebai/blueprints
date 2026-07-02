@@ -1,0 +1,66 @@
+id: aweb.team
+name: aweb AI Team
+version: 0.1.0
+summary: A complete AI team — a coordinator who plans and routes, developers and a reviewer who build and gate the work, agent-resources for identity and provisioning, and opt-in roles for frontend, copy, releases, and reliability.
+description: >-
+  The first-party aweb team: every role a small team needs to plan, build,
+  review, and run real product work. The coordinator turns goals into small
+  reviewable tasks and staffs them; developers implement test-first; a reviewer
+  gives an independent blocking-vs-non-blocking verdict before anything merges;
+  agent-resources owns identity, the fleet, and the team's profiles. Opt in to
+  a frontend author for aweb-style web pages, a proofreader for the copy, a
+  deployer who verifies releases live, and a reliability lead who watches the
+  live services and runs incidents. Profiles describe behavior, not tool
+  lock-in: agents coordinate over shared aweb task/mail/chat state and adapt to
+  whichever runtime each one uses. Adopt the default set to start; add the
+  opt-in roles when the work calls for them.
+profiles:
+  - id: coordinator
+    default_count: 1
+    min: 1
+    max: 1
+    runtime_hints: [claude-code]
+  - id: developer
+    default_count: 2
+    min: 1
+    max: 4
+    runtime_hints: [claude-code, codex, pi]
+  - id: reviewer
+    default_count: 1
+    min: 0
+    max: 2
+    runtime_hints: [pi, claude-code]
+  - id: agent-resources
+    default_count: 1
+    min: 0
+    max: 1
+    runtime_hints: [claude-code]
+  - id: frontend-author
+    default_count: 0
+    min: 0
+    max: 2
+    runtime_hints: [claude-code]
+  - id: proofreader
+    default_count: 0
+    min: 0
+    max: 1
+    runtime_hints: [claude-code, pi]
+  - id: deployer
+    default_count: 0
+    min: 0
+    max: 1
+    runtime_hints: [claude-code]
+  - id: reliability
+    default_count: 0
+    min: 0
+    max: 1
+    runtime_hints: [claude-code, pi]
+runtime_hints: [claude-code, codex, pi]
+expected_apps: [library, tasks]
+first_mission_examples:
+  - Turn this product goal into a set of scoped, reviewable tasks and staff them.
+  - Implement this issue test-first and hand it to the reviewer.
+  - Review this diff and give a blocking-vs-non-blocking verdict before merge.
+  - Provision a new global agent for the team and onboard it.
+  - Write the home page for this naapp in the Paper/Clay system and verify it renders.
+  - Clean-deploy these services and verify they render correctly on the live URLs.
