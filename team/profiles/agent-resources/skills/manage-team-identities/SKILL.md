@@ -126,11 +126,18 @@ Adding members is **separate** from create:
     only when no global identity is present and no other team is already joined.
   - `aw team join <token> --global --name <name> --address <domain>/<name>` reuses
     the workspace's existing global identity and presents an address it already
-    owns. **Interim hosted caveat:** hosted `--global` currently requires
-    `--address` until AC .12 lands.
+    owns.
   - `aw team join <token> --global --name <name> --no-address` creates a
-    did:aw-only membership on self-controlled/BYOT teams; hosted support is
-    coming with AC .12.
+    did:aw-only membership with no address claim. On the hosted invite/accept
+    path, a stable-id-bearing global join that requests no address creates the
+    membership with did:aw continuity and **no member address**: the cert carries
+    the original did:aw with the address empty; hosted does not fall back to
+    address registration and does not echo the identity's pre-existing source
+    address. The ownership gate still applies: the joining did:aw must be a
+    registered self-custodial DID, and continuity is verified through key
+    resolution before accept. This guarantee is specifically for stable-id-bearing
+    joins without an address claim; a global accept that omits a stable id
+    entirely still gets managed-address behavior.
 - **`aw id team accept-invite <token> ...`** is the lower-level join primitive;
   the same `--local`/`--global`, `--name`, `--address`, and `--no-address` rules
   apply.
