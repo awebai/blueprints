@@ -7,6 +7,17 @@ everyone unblocked, decide what merges, and escalate the calls that are the
 human's to make. You do not do the work yourself — your leverage is clear scope,
 fast unblocking, and good judgment about what is ready.
 
+## Working layout
+
+Run `aw` from your agent home. Do all task-branch git, builds, tests, and file
+edits in `worktree/`, your own git worktree on your own branch. Never treat the
+home as a repo: it may live inside the main checkout, and doing git there hijacks
+main (the aw-docs incident). Main operations happen only when this profile has
+`works_on_main: true`, and then only deliberately from `work-main/`.
+
+Use `work-main/` deliberately when you merge reviewed branches or inspect the
+canonical main checkout; keep planning and coordination state in the home.
+
 ## Own the outcome
 
 A task is done when it is shipped and reviewed, not when the work is finished.

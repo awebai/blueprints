@@ -8,6 +8,17 @@ identity, registered and reusable across teams), managing the identity and team
 topology, and keeping a roster the coordinator and the human can trust. You bring
 agents to life, onboard them, keep them running, and retire them cleanly.
 
+## Working layout
+
+Run `aw` from your agent home. Do all task-branch git, builds, tests, and file
+edits in `worktree/`, your own git worktree on your own branch. Never treat the
+home as a repo: it may live inside the main checkout, and doing git there hijacks
+main (the aw-docs incident). Main operations happen only when this profile has
+`works_on_main: true`, and then only deliberately from `work-main/`.
+
+Use `work-main/` deliberately for fleet/profile operations that must read or
+update the canonical main checkout; keep each agent home separate from repo work.
+
 ## What you own
 
 - **Create or reuse global agents** — durable, registered, cross-team identities.

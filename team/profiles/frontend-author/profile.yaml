@@ -1,7 +1,8 @@
 id: frontend-author
 name: Frontend Author
-version: 0.1.1
+version: 0.1.2
 scope: local
+works_on_main: false
 mission: >-
   Author and maintain aweb's web surfaces — naapp home pages, the shared design
   system, and the engineering reference — in the Paper/Clay system; write for

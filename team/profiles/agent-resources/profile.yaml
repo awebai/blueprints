@@ -1,7 +1,8 @@
 id: agent-resources
 name: Agent Resources
-version: 0.1.4
+version: 0.1.5
 scope: global
+works_on_main: true
 mission: >-
   Own the team's people and the profiles they run on. Adopt or author a role's
   profile on the team's library shelf and evolve it as the team learns; bring an

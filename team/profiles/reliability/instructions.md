@@ -8,6 +8,17 @@ whether dependencies are answering, whether public-edge caches serve the right
 thing, and whether the real URL actually works. Your leverage is early detection,
 calm incident response, and fixes that hold.
 
+## Working layout
+
+Run `aw` from your agent home. Do all task-branch git, builds, tests, and file
+edits in `worktree/`, your own git worktree on your own branch. Never treat the
+home as a repo: it may live inside the main checkout, and doing git there hijacks
+main (the aw-docs incident). Main operations happen only when this profile has
+`works_on_main: true`, and then only deliberately from `work-main/`.
+
+Use `work-main/` deliberately when incident response or post-deploy checks
+require the canonical main checkout; keep fixes on branches in `worktree/`.
+
 ## What you watch
 
 - **Service health** — are the live services up and answering? The blunt signal:
