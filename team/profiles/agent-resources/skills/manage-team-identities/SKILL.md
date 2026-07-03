@@ -1,6 +1,6 @@
 ---
 name: manage-team-identities
-description: Sets up and administers the identity and team topology behind a fleet of agents - creating and hosting teams, adding local or global agent members, joining global identities to more teams, inspecting identity scope, organizing namespaces and addresses, and handling controller keys and danger zones safely. Use when creating or deleting a team, onboarding or removing an agent's membership, putting a global agent in multiple teams, inspecting or rotating identities, or organizing how teams are hosted and namespaced.
+description: Sets up and administers the identity and team topology behind a fleet of agents - creating and hosting teams, adding local or global identity-scope agent members, joining global identities to more teams, inspecting identity scope, organizing namespaces and addresses, and handling controller keys and danger zones safely. Use when creating or deleting a team, onboarding or removing an agent's membership, putting a global agent in multiple teams, inspecting or rotating identities, or organizing how teams are hosted and namespaced.
 ---
 
 # Manage Team Identities
@@ -48,9 +48,9 @@ Two independent axes — don't infer one from the other:
   in that team/workspace. A *global* identity is registered in AWID with a stable
   `did:aw`; it can hold memberships in many teams and may have zero, one, or many
   addresses such as `<domain>/<name>`.
-- **Self-custodial vs custodial.** *Self-custodial* keeps the private key locally
-  in `.aw/signing.key` (rotate with `aw id rotate-key`). *Custodial* lets aweb
-  hold the encrypted key; there is **no local CLI command to rotate it** — it's a
+- **Self-custodial vs custodial.** *Self-custodial* keeps the private key on
+  disk in `.aw/signing.key` (rotate with `aw id rotate-key`). *Custodial* lets aweb
+  hold the encrypted key; there is **no CLI command to rotate it** — it's a
   cloud-account operation.
 
 `did:key:z6Mk...` is the *current signing key*; `did:aw:...` is the *stable
@@ -72,33 +72,47 @@ which registry you point at:
 
 - **Model A — self-custodial.** You hold the controller key for a domain: a real
   domain proven via DNS TXT (**BYOT**), or the throwaway `local` namespace for a
-  dev stack. Create-team and add-member are **local signed operations** against
+  dev stack. Create-team and add-member are **client-signed operations** against
   the configured registry, no API key. Controller keys live under `~/.awid/`.
 - **Model B — hosted-managed.** You signed up via `app.aweb.ai`; your teams live
   under aweb.ai's namespace, whose controller key you do **not** hold. Creating
   another team or adding members goes **through the hosted layer** on
   `app.aweb.ai`, keyed by the credential that layer issues.
 
-The `local`/localhost flow is just Model A with a throwaway namespace — not a
+The localhost dev-stack flow is just Model A with a throwaway namespace — not a
 third architecture.
 
 ## Create a team
 
 `aw team create <name>` gives you a *usable* team you control — it registers the
 team **and enrolls you as its first member** (a register-only team you can't act
-in is a trap, not a success). It branches on **whether you have an identity and
+in is a trap, not a success). It can also populate the initial agent roster with
+repeated `--agent` specs. It branches on **whether you have an identity and
 whether you control its namespace** — not on which registry you point at:
 
 - **No identity yet** → it runs `aw init`'s bundle (hosted onboarding by default;
-  local-implicit on a localhost stack).
+  dev-stack implicit on localhost).
 - **Existing self-custodial identity controlling a namespace** (Model A) → mints
   a new team under that namespace, signed, no re-signup.
 - **Hosted-managed identity** (Model B) → routes through `app.aweb.ai`'s
   create-team path.
 
-Who ends up holding the team controller key — you, locally, vs AC server-side —
-is the *custody outcome* of which branch ran, and it's what decides who can mint
-members next.
+Who ends up holding the team controller key — you on your machine vs AC
+server-side — is the *custody outcome* of which branch ran, and it's what decides
+who can mint members next.
+
+**PENDING CONFIRM-LOCK — remove this block at the v1.32 release-live signal.**
+These create+populate forms, including `--username`, are v1.32-pending
+confirm-lock. Run them only after the 1.32 release-live signal. Currently shipped
+help covers `--agent`, `--byot`, and `--namespace`.
+
+For hosted teams, create and populate the first roster through the hosted layer:
+
+```bash
+aw team create <team> --username <u> \
+  --agent alice@aweb.team/developer=pi \
+  --agent bob@aweb.team/reviewer=claude-code
+```
 
 For a domain you control explicitly:
 
@@ -106,7 +120,8 @@ For a domain you control explicitly:
 aw id namespace prepare-controller --domain <domain>   # make the namespace key + print the _awid.<domain> TXT value
 # (human publishes the DNS TXT record)
 aw id namespace check-txt --domain <domain>            # verify DNS
-aw team create <name> --byot --namespace <domain>      # create + enroll you as first member
+aw team create <name> --byot --namespace <domain> --username <u> \
+  --agent alice@aweb.team/developer=pi                 # create + enroll you + populate roster
 ```
 
 `aw id team create` is the **register-only** controller primitive (admin surface)
@@ -116,7 +131,7 @@ team** — those keys are your authority over the namespace/team.
 
 ## Populate the team — add and invite
 
-Adding members is **separate** from create:
+After create, adding members remains repeatable:
 
 - **`aw team add <name>@<profile> ...`** — mint new team-owned **local** agent
   members into the active team (identity scope: local; one team only).
@@ -155,8 +170,8 @@ Important invariants:
 **Who signs the membership certificate** (the credential — a signed statement
 that a `did:key` belongs to the team, stored at `.aw/team-certs/*.pem`):
 
-- **Self-custodial:** the **client** signs it locally with the team key and
-  registers it in AWID (gated by a team-controller-key signature).
+- **Self-custodial:** the **client** signs it with the team key and registers it
+  in AWID (gated by a team-controller-key signature).
 - **Hosted:** the **AC server** signs it (it holds the controller key); the CLI
   never holds a team key, and the cert is stored on AC's side.
 
@@ -197,7 +212,7 @@ active team. Confirm the active team before relying on a member name.
   or self-controlled with the controller key). Team membership alone does not
   grant address authority.
 - `aw id address claim <namespace>/<name>` claims an additional address for the
-  current global identity in a namespace you control. It is atomic: no local
+  current global identity in a namespace you control. It is atomic: no workspace
   state changes on failure. Standalone hosted address claim is unsupported and
   fails closed with guidance to join a team (`aw id team accept-invite` /
   `aw team join`) because hosted addresses are claimed during accept.

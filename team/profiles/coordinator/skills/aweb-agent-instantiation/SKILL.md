@@ -1,19 +1,20 @@
 ---
 name: aweb-agent-instantiation
-description: This skill should be used when staffing a team — instantiating, refreshing, running, onboarding, or retiring an agent built from a shipped blueprint profile. Covers creating and launching one teammate with aw team add --start, reconciling materialized homes with aw team up, refreshing them after profile evolution, removing team membership, and handing the agent its first task over mail. The mechanics that turn a profile into a working teammate.
+description: This skill should be used when staffing a team — creating and populating a team from shipped blueprint profiles, launching the roster, adding one teammate later, refreshing homes after profile evolution, removing team membership, and handing agents their first tasks over mail. The mechanics that turn profiles into working teammates.
 allowed-tools: "Bash(aw *), Bash(rm *), Bash(mkdir *)"
 ---
 
 # aweb Agent Instantiation
 
-Use this skill to turn a shipped blueprint profile into a **live teammate**:
-materialize its home, bring the local team up, refresh the home when its profile
-improves, and retire it cleanly when the work is done. This is the
-**mechanics** layer. The role using this skill supplies the staffing
-*judgment* — when to staff, who, and how to onboard. The **coordinator** uses it
-for local, name-only agents; the **AR (agent resources)** role uses it for the
-same local mechanics and additionally owns global, identity-bearing staffing
-through `manage-team-identities`. This skill is the *how*.
+Use this skill to turn shipped blueprint profiles into a **live roster**:
+create and populate a team, launch it, add one teammate later when needed,
+refresh homes when profiles improve, and retire agents cleanly when the work is
+done. This is the **mechanics** layer. The role using this skill supplies the
+staffing *judgment* — when to staff, who, and how to onboard. The
+**coordinator** commonly staffs local identity-scope, name-only agents; the
+**AR (agent resources)** role uses the same mechanics and additionally owns
+global identity-scope staffing through `manage-team-identities`. This skill is
+the *how*.
 
 For team coordination (tasks, work discovery, locks) load `aweb-coordination`;
 for mail/chat policy load `aweb-messaging`. This skill assumes those and covers
@@ -41,108 +42,69 @@ The agent reads its profile, connects to the aweb channel, and is reachable over
 
 ## Preconditions — check, don't assume
 
-- You can run a local tmux session. `aw team add --start` launches a single new
-  teammate; `aw team up` reconciles the materialized fleet.
-- Use `aw 1.31.0+`, which includes `aw team add --start`, `aw team up`, and the
-  `works_on_main` home anatomy.
+- You can run a tmux session. `aw team create --agent ...` populates a roster;
+  `aw team up` launches and reconciles it; `aw team add --start` adds one
+  teammate later.
+- Use the `aw` release that includes the v1.32 team-create roster flags,
+  `aw team add --start`, `aw team up`, and the `works_on_main` home anatomy.
 - You are a member of the team you are staffing into.
 
-## The add spec (aw 1.31+)
+## Create, populate, then launch the roster
 
-`aw team add` accepts these everyday agent specs:
+The primary staffing flow is **create + populate + up**: create the team, declare
+its initial roster with one `--agent` flag per teammate, then launch the
+materialized roster.
 
-- `[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME]` — materialize a profile
-  from a public blueprint. The blueprint defaults to `aweb.team` when omitted,
-  and profile-only selectors can use `--blueprint` / `AWEB_BLUEPRINT`.
-- `NAME[:local|global]` — create an empty-profile home.
-- Omitted names are server-authoritative; do not invent the next classic name
-  locally when the command can choose it.
-- `=RUNTIME` selects the materialization target (`claude-code`, `pi`, `codex`,
-  or `local-shell`). Runtime binds at **materialize** time: a `pi` home differs
-  from a `claude-code` home.
-- `--home <dir>` writes a single agent to a specific home directory.
-- `--work-dir <repo>` points the agent `worktree/` at a separate project repo;
-  the default is the repo containing the home, and non-git homes skip worktree
-  setup gracefully.
-- `--layout-only` creates the `agents/instances/<name>` layout without creating
-  identity state; use only for deliberate layout preparation, not normal
-  staffing.
-- `--start` launches the added agent in tmux after materializing it. It handles
-  exactly one agent, rejects `--layout-only`, accepts `--session`, `--attach`,
-  and `--no-attach` like `aw team up`, and skips launch if the home is already a
-  running process cwd.
+**PENDING CONFIRM-LOCK — remove this block at the v1.32 release-live signal.**
+These create+populate forms, including `--username`, are v1.32-pending
+confirm-lock. Run them only after the 1.32 release-live signal. Currently shipped
+help covers `--agent`, `--byot`, and `--namespace`.
 
-**Scope — local agents only.** `aw team add` defaults to local identity scope,
-which creates a name-only member scoped to exactly this team and is the boundary
-of this skill. Do **not** pass `--global` and do **not** use the `:global` spec
-suffix here. Global agents (a stable `did:aw`, optional addresses, reusable
-memberships across teams) are a separate identity-level operation owned by the
-**AR** role via the `manage-team-identities` skill.
-
-## Create and launch one local teammate
-
-For a single teammate, `--start` is the primary staffing path. `aw team add
-[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME] --start` materializes the
-home, sets up the home/worktree isolation (plus `work-main/` for
-`works_on_main` roles), and launches the agent in tmux in one command via the
-same team-up path: channel preflight, prompt auto-answering, and `pi --approve`.
+Hosted team:
 
 ```bash
-aw team add alice@aweb.team/developer:local=claude-code --start --no-attach
-aw team add bob@aweb.team/reviewer:local=pi --start --session <session>
-```
-
-For one explicit target directory:
-
-```bash
-aw team add "alice@aweb.team/developer:local=claude-code" --home "agents/instances/alice" --start --no-attach
-```
-
-`--start` handles exactly one agent. It is rejected with `--layout-only`, takes
-`--session`, `--attach`, and `--no-attach` like `aw team up`, and skips launch if
-the home is already a running process cwd.
-
-Materialization produces the home anatomy above. The default work repo is the repo
-containing the home; use `--work-dir <repo>` to point `worktree/` at a separate
-project repo. When git-worktree setup is available, the release aw creates
-`worktree/` for every teammate and creates `work-main/` only for profiles with
-`works_on_main: true`; non-git homes skip worktree setup gracefully. The
-materializer installs the right channel integration.
-
-Operator note: the teammate's layout follows the teammate profile's
-`works_on_main` value, not the operator's role. Inspect the recorded profile
-provenance before you run or refresh it, and include the teammate's `worktree/`
-path in the first-task onboarding mail so the agent knows where to do the work.
-Never do git work in the teammate's home directory.
-
-```bash
-aw agent profile show alice
-```
-
-After launch, onboard over mail and leave the TTY alone:
-
-```bash
-aw mail send --to "alice" --subject "onboarding" --body "<role + project context + first scoped task; work in agents/instances/alice/worktree/>"
-```
-
-The channel injects the mail; the agent wakes, acts as its profile, and replies.
-From here coordinate only over mail/chat (`aweb-messaging`) — never by driving
-the TUI.
-
-## Materialize first, then reconcile the fleet with `aw team up`
-
-Use the two-step flow when you are preparing several homes before launching, when
-you intentionally want to inspect the materialized home first, or when you need
-to reconcile/restart existing materialized teammates:
-
-```bash
-aw team add alice@aweb.team/developer:local=claude-code
-aw team add bob@aweb.team/reviewer:local=pi
-aw team up --dry-run
+aw team create <team> --username <u> \
+  --agent alice@aweb.team/developer=pi \
+  --agent bob@aweb.team/reviewer=claude-code \
+  --agent charlie@aweb.team/proofreader=claude-code
 aw team up
 ```
 
-`aw team up` is the fleet/reconcile/restart path. It scans
+Self-hosted/BYOT team:
+
+```bash
+aw team create <team> --byot --namespace <domain> --username <u> \
+  --agent alice@aweb.team/developer=pi \
+  --agent bob@aweb.team/reviewer=claude-code \
+  --agent charlie@aweb.team/proofreader=claude-code
+aw team up
+```
+
+The `--agent` specs use `[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME]`:
+
+- The blueprint defaults to `aweb.team` when omitted.
+- `=RUNTIME` selects the materialization target (`claude-code`, `pi`, `codex`, or
+  `local-shell`). Runtime binds at **materialize** time: a `pi` home differs from
+  a `claude-code` home.
+- `:local` and `:global` describe **agent identity scope only**. A local
+  identity-scope agent is name-only inside one team; a global identity-scope
+  agent uses a stable `did:aw` and belongs in the `manage-team-identities` flow.
+- Omitted names are server-authoritative; do not invent the next classic name
+  when the command can choose it.
+
+Team kind is a separate axis: use the hosted form for aweb-cloud-managed teams;
+use `--byot --namespace <domain>` for self-hosted/BYOT teams where the customer
+controls the namespace/controller authority.
+
+`aw team create ... --agent ...` materializes the roster homes and their home
+anatomy. The default work repo is the repo containing the home; use
+`--work-dir <repo>` in later add flows to point `worktree/` at a separate project
+repo. When git-worktree setup is available, the release aw creates `worktree/`
+for every teammate and creates `work-main/` only for profiles with
+`works_on_main: true`; non-git homes skip worktree setup gracefully. The
+materializer installs the right channel integration.
+
+`aw team up` is the fleet launch and reconcile path. It scans
 `agents/instances/<name>` for materialized homes, reads each home's runtime from
 `.aw/profile/ref.json`, and starts one tmux window per supported interactive
 runtime. It is idempotent: homes already running are skipped; run it again after
@@ -151,6 +113,7 @@ materializing more homes, after a refresh, or after a runtime is killed.
 Useful controls:
 
 ```bash
+aw team up --dry-run             # print the launch plan
 aw team up --session <name>      # choose the tmux session name
 aw team up --no-attach           # start/reconcile but do not attach
 aw team up --attach              # attach/switch after launch
@@ -171,6 +134,44 @@ Supported launch runtimes are `claude-code` and `pi`. `codex` and `local-shell`
 can be materialized, but they are not launched by `aw team up`; start those
 manually from the materialized home if you intentionally use them.
 
+Operator note: each teammate's layout follows that teammate profile's
+`works_on_main` value. Inspect recorded profile provenance before refresh or
+handoff, include the teammate's `worktree/` path in the first-task onboarding
+mail, and never do git work in the teammate's home directory.
+
+```bash
+aw agent profile show alice
+aw mail send --to "alice" --subject "onboarding" --body "<role + project context + first scoped task; work in agents/instances/alice/worktree/>"
+```
+
+The channel injects the mail; the agent wakes, acts as its profile, and replies.
+From here coordinate only over mail/chat (`aweb-messaging`) — never by driving
+the TUI.
+
+## Add one teammate later with `aw team add --start`
+
+Use `--start` when the team already exists and you need one more teammate:
+
+```bash
+aw team add alice@aweb.team/developer=claude-code --start --no-attach
+aw team add bob@aweb.team/reviewer=pi --start --session <session>
+```
+
+For one explicit target directory or work repo:
+
+```bash
+aw team add "alice@aweb.team/developer=claude-code" --home "agents/instances/alice" --work-dir <repo> --start --no-attach
+```
+
+`aw team add [NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME] --start`
+materializes the home, sets up home/worktree isolation plus `work-main/` for
+`works_on_main` roles, and launches the agent in tmux in one command via the
+same team-up path: channel preflight, prompt auto-answering, and `pi --approve`.
+
+`--start` handles exactly one agent. It is rejected with `--layout-only`, takes
+`--session`, `--attach`, and `--no-attach` like `aw team up`, and skips launch if
+the home is already a running process cwd.
+
 ## Refresh an existing agent after profile evolution
 
 A running home does **not** pick up shelf/profile changes just because a profile
@@ -182,10 +183,10 @@ aw team refresh <name>
 
 `aw team refresh <name>` re-materializes `agents/instances/<name>` from the
 latest version of the profile recorded in that home's `.aw/profile/ref.json`.
-It reads the recorded profile ref locally and never asks a remote service which
-profile to use. It prunes the managed set, preserves local state outside that
-managed set, updates `.aw/profile/ref.json`, and is a no-op when the digest is
-unchanged.
+It reads the recorded profile ref from the home and never asks a remote service
+which profile to use. It prunes the managed set, preserves home state outside
+that managed set, updates `.aw/profile/ref.json`, and is a no-op when the digest
+is unchanged.
 
 Upstream blueprint improvements are a separate, composable step: pull them onto
 the team's private shelf first with the Library plugin, then refresh the home:
@@ -211,21 +212,22 @@ Removal is a lifecycle step, not just a process cleanup.
    aw team remove-agent <member-address>
    ```
 
-   This is revocation only: customer-controlled teams revoke with the local team
-   controller key; hosted aweb.ai teams use the cloud-mediated controller revoke
-   endpoint.
+   This is revocation only: self-hosted/BYOT teams revoke with the
+   self-custodial team controller key; hosted aweb.ai teams use the
+   cloud-mediated controller revoke endpoint.
 3. **Decide deliberately what to do with the home directory.** `aw team
    remove-agent` does not delete the home. The home persists by default for
    audit/recovery. Deleting it is separate and irreversible; do it only when the
-   team explicitly wants the local files gone.
+   team explicitly wants the home files gone.
 
 ## Guardrails — do NOT use these (each is a known dead-end)
 
 - Earlier per-agent launcher commands are gone; `aw team up` is the only run
   path. Launching an interactive runtime detached, without a TTY and the team-up
   channel preflight, does not work for Claude Code or pi.
-- **`--global` or `:global` in this skill** — global staffing belongs in
-  `manage-team-identities`, not the local instantiation flow.
+- **Unplanned global identity-scope staffing in this skill** — durable `did:aw`
+  identity decisions belong in `manage-team-identities`, not an incidental roster
+  edit.
 
 ## References
 

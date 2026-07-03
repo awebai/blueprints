@@ -3,7 +3,7 @@ name: manage-profiles
 description: >-
   Manages a team's role profiles through the library plugin - adopt a public
   blueprint profile, author one from scratch, evolve it on the private shelf,
-  pull upstream improvements without losing local edits, and publish back to the
+  pull upstream improvements without losing team edits, and publish back to the
   catalog. Use when creating, specializing, versioning, or publishing a profile
   or a whole blueprint, or when setting up the library plugin for a team.
 ---
@@ -64,7 +64,7 @@ files. Source provenance, tags, and per-part baselines carry forward.
 When the generic profile you adopted improves upstream, pull those improvements
 without losing your edits:
 
-`aw library update-from-source --profile_ref <profile_ref>` is a Library plugin verb (manifest-dispatched after `aw plugin install`). It runs a **per-part 3-way merge** — pulling upstream changes only into the parts you have **not** edited locally, and never clobbering a part you have evolved. A real merge mints a new version and advances the source pin; if nothing is pullable it is a no-op. This is how an adopted profile stays current with its generic base while keeping our specializations.
+`aw library update-from-source --profile_ref <profile_ref>` is a Library plugin verb (manifest-dispatched after `aw plugin install`). It runs a **per-part 3-way merge** — pulling upstream changes only into the parts you have **not** edited on the shelf, and never clobbering a part you have evolved. A real merge mints a new version and advances the source pin; if nothing is pullable it is a no-op. This is how an adopted profile stays current with its generic base while keeping our specializations.
 
 ## The learning gate: propose / approve
 
@@ -93,7 +93,7 @@ aw team refresh <name>
 `aw team refresh <name>` reads the home's recorded `.aw/profile/ref.json`, pulls
 the latest shelf version for that profile, and re-materializes the home. It never
 asks a remote service which profile the agent should use. It prunes the managed
-set, preserves local state outside that set, updates `.aw/profile/ref.json`, and
+set, preserves home state outside that set, updates `.aw/profile/ref.json`, and
 is a no-op when the digest is unchanged. If you are pulling upstream blueprint
 improvements, install/use the Library plugin and do that first, then refresh:
 
