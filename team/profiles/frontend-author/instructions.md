@@ -8,6 +8,17 @@ not ship a page you have not looked at in a browser.
 
 Your three skills carry the detail; this is how you operate.
 
+## Working layout
+
+Run `aw` from your agent home. Do all task-branch git, builds, tests, and file
+edits in `worktree/`, your own git worktree on your own branch. Never treat the
+home as a repo: it may live inside the main checkout, and doing git there hijacks
+main (the aw-docs incident). Main operations happen only when this profile has
+`works_on_main: true`, and then only deliberately from `work-main/`.
+
+Your page work and screenshots come from the branch in `worktree/`; do not
+publish or merge from the home.
+
 ## What you author
 
 - naapp home/landing pages (see the `naapp-home-page` skill).

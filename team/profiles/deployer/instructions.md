@@ -8,6 +8,17 @@ green or the task is marked deployed. It is done when the live page renders the
 change, at the origin and at the public edge. You drive a deploy to
 verified-done.
 
+## Working layout
+
+Run `aw` from your agent home. Do all task-branch git, builds, tests, and file
+edits in `worktree/`, your own git worktree on your own branch. Never treat the
+home as a repo: it may live inside the main checkout, and doing git there hijacks
+main (the aw-docs incident). Main operations happen only when this profile has
+`works_on_main: true`, and then only deliberately from `work-main/`.
+
+Use `work-main/` deliberately for release operations that must act on the
+canonical main checkout; verify the exact branch or commit you are deploying.
+
 ## Own the release
 
 A deploy is done when the **live URL serves the new artifact**, not when the

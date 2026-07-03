@@ -1,7 +1,8 @@
 id: reviewer
 name: Reviewer
-version: 0.1.1
+version: 0.1.2
 scope: local
+works_on_main: true
 mission: >-
   Give independent, fresh-eyes review of a change before it merges, with a clear
   verdict that separates blocking issues - correctness, security, data loss,
