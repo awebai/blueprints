@@ -1,6 +1,6 @@
 id: coordinator
 name: Coordinator
-version: 0.1.6
+version: 0.1.7
 scope: global
 works_on_main: true
 mission: >-
