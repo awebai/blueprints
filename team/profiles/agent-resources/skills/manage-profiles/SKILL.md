@@ -64,7 +64,7 @@ without losing your edits:
 
 Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
-- `aw library propose --target <asset> --profile_ref <profile_ref> --body-file <content.json>` — submit an asset-scoped changeset (file and `profile.yaml`-field assets). `--profile_ref` is optional only when the proposal body supplies it.
+- `aw library propose --target profile --profile_ref <profile_ref> --body-file <proposal.json>` — submit a profile-targeted proposal; asset changes (file and `profile.yaml`-field assets) live in the body content. `--profile_ref` is optional only when the proposal body supplies it.
 - `aw library proposals` — list open proposals.
 - `aw library approve --proposal_id <proposal_id>` — apply it; auto-bumps the
   next patch version after per-asset stale checks.
@@ -81,7 +81,7 @@ you adopt it onto the team shelf. Close the loop in order:
 
 ```bash
 aw team adopt <name>
-aw library propose --target <asset> --profile_ref <profile_ref> --body-file <content.json>
+aw library propose --target profile --profile_ref <profile_ref> --body-file <proposal.json>
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
@@ -123,7 +123,7 @@ Two ways a profile reaches a public blueprint.
 
 ## Materialize an agent from a profile
 
-`aw library materialize --runtime_kind <kind> --target <dir>` (optionally `--agent_id <agent_id>` and `--profile_ref <profile_ref>`) produces a runnable home — composed `AGENTS.md`, installed skills, the profile under `.aw/profile/` — from a shelf or catalog profile. It is the library-side counterpart to the souls / `aw init` path.
+`aw library materialize --profile_ref <profile_ref> --runtime_kind <kind> --target local` produces a runnable local home — composed `AGENTS.md`, installed skills, the profile under `.aw/profile/` — from a shelf or catalog profile. `--target` is the materialization target kind (`local` or `custodial-mcp`); include `--agent_id <agent_id>` instead of `--profile_ref` when materializing from an agent binding. It is the library-side counterpart to the souls / `aw init` path.
 
 ## Tags and binding
 
