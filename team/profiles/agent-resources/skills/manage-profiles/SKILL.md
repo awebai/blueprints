@@ -70,11 +70,11 @@ without losing your edits:
 
 Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
-- `aw library propose <profile_ref>` — submit an asset-scoped changeset (file and
-  `profile.yaml`-field assets).
+- `aw library propose <profile_ref> --body-file <proposal.json>` — submit an
+  asset-scoped changeset (file and `profile.yaml`-field assets).
 - `aw library proposals` — list open proposals.
-- `aw library approve <proposal_id>` — apply it; auto-bumps the next patch version
-  after per-asset stale checks.
+- `aw library approve --proposal_id <proposal_id>` — apply it; auto-bumps the
+  next patch version after per-asset stale checks.
 - `aw library reject <proposal_id>` — drop it.
 
 Use this when a profile should evolve **under review** rather than by a direct
@@ -83,27 +83,42 @@ Use this when a profile should evolve **under review** rather than by a direct
 ## Apply the approved version to a running home
 
 A proposal approval or `update-from-source` merge mints a new shelf profile
-version, but running agents keep using the old materialized files until their
-home is refreshed. Close the loop explicitly:
+version, but a public-pinned agent home keeps following the public catalog until
+you adopt it onto the team shelf. Close the loop in order:
 
 ```bash
+aw team adopt <name>
+aw library propose <profile_ref> --body-file <proposal.json>
+aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
 
-`aw team refresh <name>` reads the home's recorded `.aw/profile/ref.json`, pulls
-the latest shelf version for that profile, and re-materializes the home. It never
-asks a remote service which profile the agent should use. It prunes the managed
-set, preserves home state outside that set, updates `.aw/profile/ref.json`, and
-is a no-op when the digest is unchanged. If you are pulling upstream blueprint
-improvements, install/use the Library plugin and do that first, then refresh:
+`aw team adopt <name>` is the bridge: it reads the public profile pin in the
+home, imports that profile onto the team's private Library shelf, binds the
+agent, and re-points `.aw/profile/ref.json` to the shelf copy. Adopt **before**
+you expect propose/approve/refresh to reach the running agent.
+
+After adopt, `aw team refresh <name>` reads the home's shelf pin, pulls the
+latest shelf version for that profile, and re-materializes the home. It prunes
+the managed set, preserves home state outside that set, updates
+`.aw/profile/ref.json`, and is a no-op when the digest is unchanged. The Library
+plugin is required for `aw team adopt`'s shelf import and for the `aw library ...`
+evolution verbs.
+
+Public-pinned homes still have a valid refresh path: they refresh from the latest
+published version of their public blueprint source. That is the upstream catalog
+improvement path, not the team-local shelf learning loop.
+
+If you are pulling upstream blueprint improvements into the shelf, install/use
+the Library plugin and do that before refresh:
 
 ```bash
 aw library update-from-source --profile_ref <profile_ref>
 aw team refresh <name>
 ```
 
-Without the refresh, the approved improvement exists on the shelf but the live
-agent keeps running the previous home.
+Without adopt plus refresh, the approved improvement exists on the shelf but the
+live public-pinned agent keeps running the previous public-source home.
 
 ## Publish to the catalog
 

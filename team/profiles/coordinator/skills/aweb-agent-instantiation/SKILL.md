@@ -169,22 +169,39 @@ the home is already a running process cwd.
 
 ## Refresh an existing agent after profile evolution
 
-A running home does **not** pick up shelf/profile changes just because a profile
-proposal was approved. Refresh is the closing step of the learning loop:
+A running home does **not** pick up profile changes until its home is refreshed:
 
 ```bash
 aw team refresh <name>
 ```
 
 `aw team refresh <name>` re-materializes `agents/instances/<name>` from the
-latest version of the profile recorded in that home's `.aw/profile/ref.json`.
-It reads the recorded profile ref from the home and never asks a remote service
-which profile to use. It prunes the managed set, preserves home state outside
-that managed set, updates `.aw/profile/ref.json`, and is a no-op when the digest
-is unchanged.
+profile source recorded in `.aw/profile/ref.json`. It prunes the managed set,
+preserves home state outside that managed set, updates `.aw/profile/ref.json`,
+and is a no-op when the digest is unchanged.
 
-Upstream blueprint improvements are a separate, composable step: pull them onto
-the team's private shelf first with the Library plugin, then refresh the home:
+There are two source paths:
+
+1. **Public-pinned home.** Homes created from the public catalog stay pinned to
+   their public blueprint source. Refresh pulls the latest published version of
+   that source profile — the upstream catalog improvement path.
+2. **Adopted shelf home.** `aw team adopt <name>` re-points a public-pinned home
+   onto this team's private Library shelf. After that, refresh follows the shelf
+   path and can apply team-approved profile mints.
+
+The order matters. Adopt first, then evolve the shelf, then refresh:
+
+```bash
+aw team adopt <name>
+aw library propose <profile_ref> --body-file <proposal.json>
+aw library approve --proposal_id <proposal_id>
+aw team refresh <name>
+```
+
+The Library plugin is required for `aw team adopt`'s shelf import and for the
+`aw library ...` evolution verbs. `update-from-source` remains the shelf-side way
+to pull newer upstream blueprint parts into portions of the shelf profile your
+team has not edited:
 
 ```bash
 aw library update-from-source --profile_ref <profile_ref>
