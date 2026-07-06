@@ -65,7 +65,7 @@ without losing your edits:
 
 Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
-- `aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'` — submit a profile-targeted proposal; asset changes (file and `profile.yaml`-field assets) live in the JSON content. `--profile_ref` is optional only when the proposal body supplies it.
+- `aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary' --rationale 'why this role should learn it'` — submit a profile-targeted proposal; asset changes (file and `profile.yaml`-field assets) live in the `aweb.library.profile-asset-changeset.v1` JSON changeset content. `proposal.json` contains asset changes, not a `files` array: `assets` is an array of `{path, content_utf8, base_asset_digest}` objects, one per changed asset. `--profile_ref` is optional only when the proposal body supplies it.
 - `aw library proposals` — list open proposals.
 - `aw library approve --proposal_id <proposal_id>` — apply it; auto-bumps the
   next patch version after per-asset stale checks.
@@ -82,7 +82,7 @@ you adopt it onto the team shelf. Close the loop in order:
 
 ```bash
 aw team adopt <name>
-aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'
+aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary' --rationale 'why this role should learn it'
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
@@ -120,7 +120,7 @@ Two ways a profile reaches a public blueprint.
 
 **Promote one shelf profile** — `aw library publish-profile --profile_ref <profile_ref> --blueprint_version <v>`, with optional `--profile_version <v>`, `--target_blueprint_ref <ref>`, or `--new_blueprint "$(cat new-blueprint.json)"`. The library generates the `blueprint.yaml`; the published profile keeps its shelf digest; the blueprint's profile set accumulates.
 
-**Import a whole blueprint at once** — `aw library publish-blueprint --files "$(cat import-files.json)" --schema import-payload.v1`, carrying the canonical `import-payload.v1` required `files` array plus `schema`. This is the **first-party / repo-source** path: hand-author a blueprint in a repo, build its canonical import payload, import the whole thing. Idempotent on (owner_team, blueprint_ref, version).
+**Import a whole blueprint at once** — `aw library publish-blueprint --files "$(cat import-files.json)" --schema aweb.blueprint.import-payload.v1`, carrying the canonical `aweb.blueprint.import-payload.v1` required `files` array plus `schema`. This is the **first-party / repo-source** path: hand-author a blueprint in a repo, build its canonical import payload, import the whole thing. Idempotent on (owner_team, blueprint_ref, version).
 
 ## Materialize an agent from a profile
 
@@ -140,5 +140,5 @@ Two ways a profile reaches a public blueprint.
   pulls a newer version by design.
 - Prefer `propose`/`approve` (reviewed) when a change is learning the team wants
   to keep; use `shelf-version` for direct authoring.
-- The canonical `import-payload.v1` digest is the identity of a published
-  blueprint; keep the source that generates it under version control.
+- The canonical `aweb.blueprint.import-payload.v1` digest is the identity of a
+  published blueprint; keep the source that generates it under version control.

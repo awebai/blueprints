@@ -193,7 +193,7 @@ The order matters. Adopt first, then evolve the shelf, then refresh:
 
 ```bash
 aw team adopt <name>
-aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'
+aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary' --rationale 'why this role should learn it'
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
