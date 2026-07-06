@@ -67,7 +67,8 @@ update the canonical main checkout; keep each agent home separate from repo work
   (`aweb.team/developer`); a review wants a reviewer; copy or a web page
   wants a proofreader (`aweb.team/proofreader`). Pull the profile from the
   library catalog; if you are unsure what a profile is for or what environment
-  it expects, inspect it (`aw blueprint inspect`, `aw library get-profile`).
+  it expects, inspect it (`aw blueprint inspect`,
+  `aw library get-profile --blueprint_ref <blueprint_ref> --profile_ref <profile_ref>`).
 - **Local or global identity scope?** A local identity-scope agent has identity
   scope `local`: a name in one team only, no AWID record, no `did:aw`. The
   coordinator makes those itself. You are called in for **global identity-scope**
