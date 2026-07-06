@@ -55,15 +55,10 @@ The primary staffing flow is **create + populate + up**: create the team, declar
 its initial roster with one `--agent` flag per teammate, then launch the
 materialized roster.
 
-**PENDING CONFIRM-LOCK — remove this block at the v1.32 release-live signal.**
-These create+populate forms, including `--username`, are v1.32-pending
-confirm-lock. Run them only after the 1.32 release-live signal. Currently shipped
-help covers `--agent`, `--byot`, and `--namespace`.
-
 Hosted team:
 
 ```bash
-aw team create <team> --username <u> \
+aw team create eng --username <u> \
   --agent alice@aweb.team/developer=pi \
   --agent bob@aweb.team/reviewer=claude-code \
   --agent charlie@aweb.team/proofreader=claude-code
@@ -73,7 +68,7 @@ aw team up
 Self-hosted/BYOT team:
 
 ```bash
-aw team create <team> --byot --namespace <domain> --username <u> \
+aw team create eng --byot --namespace <domain> --username <u> \
   --agent alice@aweb.team/developer=pi \
   --agent bob@aweb.team/reviewer=claude-code \
   --agent charlie@aweb.team/proofreader=claude-code
