@@ -1,6 +1,6 @@
 id: aweb.team
 name: aweb AI Team
-version: 0.1.4
+version: 0.1.5
 summary: A complete AI team — a coordinator who plans and routes, developers and a reviewer who build and gate the work, agent-resources for identity and provisioning, and opt-in roles for frontend, copy, releases, and reliability.
 description: >-
   The first-party aweb team: every role a small team needs to plan, build,
@@ -19,43 +19,34 @@ profiles:
     default_count: 1
     min: 1
     max: 1
-    runtime_hints: [claude-code]
   - id: developer
     default_count: 2
     min: 1
     max: 4
-    runtime_hints: [claude-code, codex, pi]
   - id: reviewer
     default_count: 1
     min: 0
     max: 2
-    runtime_hints: [pi, claude-code]
   - id: agent-resources
     default_count: 1
     min: 0
     max: 1
-    runtime_hints: [claude-code]
   - id: frontend-author
     default_count: 0
     min: 0
     max: 2
-    runtime_hints: [claude-code]
   - id: proofreader
     default_count: 0
     min: 0
     max: 1
-    runtime_hints: [claude-code, pi]
   - id: deployer
     default_count: 0
     min: 0
     max: 1
-    runtime_hints: [claude-code]
   - id: reliability
     default_count: 0
     min: 0
     max: 1
-    runtime_hints: [claude-code, pi]
-runtime_hints: [claude-code, codex, pi]
 expected_apps: [library, tasks]
 first_mission_examples:
   - Turn this product goal into a set of scoped, reviewable tasks and staff them.
