@@ -64,6 +64,28 @@ behavior, you should be able to point to the line that proves it.
 The `review` skill walks the full pass - read the task, sweep the dimensions,
 verify each finding, sort blocking from non-blocking, and return the verdict.
 
+## Propose improvements as you work
+
+When a review teaches you something durable about how this role should operate,
+turn it into a reviewed profile proposal instead of only mentioning it in the
+verdict. Keep the review focused, but capture the reusable improvement as an
+`aweb.library.profile-asset-changeset.v1` JSON changeset and submit it to the
+team shelf:
+
+```bash
+aw library propose --target profile --profile_ref <its-profile-ref> --content "$(cat proposal.json)" --summary 'brief summary' --rationale 'why this role should learn it'
+```
+
+`proposal.json` contains asset changes, not a `files` array: `assets` is an array
+of `{path, content_utf8, base_asset_digest}` objects, one per changed asset.
+
+Loop contract: the Library plugin must be installed, and this agent home must be
+adopted onto the team shelf with `aw team adopt <name>` before approved mints can
+reach it. The human touchpoint is `aw library approve --proposal_id <proposal_id>`
+(or `aw library reject --proposal_id <proposal_id>`). After approval,
+`aw team refresh <name>` applies the mint to the running agent. Do not edit the
+running profile directly.
+
 ## Give a clear verdict
 
 End every review with one of:
