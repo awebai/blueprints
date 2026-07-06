@@ -193,18 +193,18 @@ The order matters. Adopt first, then evolve the shelf, then refresh:
 
 ```bash
 aw team adopt <name>
-aw library propose <profile_ref> --body-file <proposal.json>
+aw library propose --target <asset> --profile_ref <profile_ref> --body-file <content.json>
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
 
 The Library plugin is required for `aw team adopt`'s shelf import and for the
-`aw library ...` evolution verbs. `update-from-source` remains the shelf-side way
+Library evolution verbs. `update-from-source` remains the shelf-side way
 to pull newer upstream blueprint parts into portions of the shelf profile your
 team has not edited:
 
 ```bash
-aw library update-from-source --profile_ref <profile_ref>
+aw library update-from-source --profile_ref <profile_ref> --target_version <v>
 aw team refresh <name>
 ```
 

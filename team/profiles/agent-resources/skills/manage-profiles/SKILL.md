@@ -16,12 +16,13 @@ into a **public blueprint** other teams can adopt. Every step is a library plugi
 verb, authenticated by the team certificate's `library:write` scope — any team
 member whose cert holds that scope can do this; it is not gated to one role.
 
-The exact flags for each verb are in `aw library <verb> --help`; the inputs noted
-below are what each call carries.
+The exact flags for each verb come from the installed Library plugin manifest;
+check each tool's `input_schema.required` fields and pass values by flag or
+`--body-file`, never as bare positionals.
 
 ## Setup: install the plugin
 
-The library exposes its API as `aw library <verb>` through its manifest. Install
+The library exposes its API as manifest-dispatched Library subcommands. Install
 it once into the trusted plugin directory, then confirm the verbs are present:
 
 ```
@@ -30,8 +31,8 @@ aw plugin list
 ```
 
 Calls authenticate with the team cert (`aw id request --team-auth`); the team is
-taken from the cert, never passed. `aw library register` (once, idempotent) binds
-the team to the library.
+taken from the cert, never passed. `aw library register` (once, idempotent;
+optional `--owner` / `--display_name`) binds the team to the library.
 
 ## The two homes: shelf vs public blueprint
 
@@ -44,38 +45,30 @@ the team to the library.
 
 Two starting points.
 
-**Author from scratch** — `aw library create-shelf-profile`. The input is the
-profile's files: `profile.yaml`, `instructions.md`, and each `skills/<s>/SKILL.md`
-(plus tags). It lands on the shelf as version 1.
+**Author from scratch** — `aw library create-shelf-profile --body-file <profile.json>`. The body carries the required `files` array (`profile.yaml`, `instructions.md`, and each `skills/<s>/SKILL.md`) plus optional tags. It lands on the shelf as version 1.
 
-**Adopt and specialize an existing one** — `aw library import-to-shelf` with a
-source `blueprint_ref` / `profile_ref`. This copies a public-blueprint profile
-onto the shelf under its source ref and records that source — the path for "start
-from a generic catalog profile, then make it ours." Re-importing the same source
-is a no-op; it never pulls a newer version (that is `update-from-source`).
+**Adopt and specialize an existing one** — `aw library import-to-shelf --source_blueprint_ref <blueprint_ref> --profile_ref <profile_ref>` (optionally `--source_blueprint_version <v>`). This copies a public-blueprint profile onto the shelf under its source ref and records that source — the path for "start from a generic catalog profile, then make it ours." Re-importing the same source is a no-op; it never pulls a newer version (that is `update-from-source`).
 
 ## Evolve it
 
-`aw library shelf-version <profile_ref>` adds a new content version from the new
-files. Source provenance, tags, and per-part baselines carry forward.
+`aw library shelf-version --profile_ref <profile_ref> --body-file <profile.json>` adds a new content version from the new required `files` array. Source provenance, tags, and per-part baselines carry forward.
 
 ## Track the source — the asset-scoped loop
 
 When the generic profile you adopted improves upstream, pull those improvements
 without losing your edits:
 
-`aw library update-from-source --profile_ref <profile_ref>` is a Library plugin verb (manifest-dispatched after `aw plugin install`). It runs a **per-part 3-way merge** — pulling upstream changes only into the parts you have **not** edited on the shelf, and never clobbering a part you have evolved. A real merge mints a new version and advances the source pin; if nothing is pullable it is a no-op. This is how an adopted profile stays current with its generic base while keeping our specializations.
+`aw library update-from-source --profile_ref <profile_ref> --target_version <v>` is a Library plugin verb (manifest-dispatched after `aw plugin install`; optionally add `--source_blueprint_version <v>`). It runs a **per-part 3-way merge** — pulling upstream changes only into the parts you have **not** edited on the shelf, and never clobbering a part you have evolved. A real merge mints the target version and advances the source pin; if nothing is pullable it is a no-op. This is how an adopted profile stays current with its generic base while keeping our specializations.
 
 ## The learning gate: propose / approve
 
 Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
-- `aw library propose <profile_ref> --body-file <proposal.json>` — submit an
-  asset-scoped changeset (file and `profile.yaml`-field assets).
+- `aw library propose --target <asset> --profile_ref <profile_ref> --body-file <content.json>` — submit an asset-scoped changeset (file and `profile.yaml`-field assets). `--profile_ref` is optional only when the proposal body supplies it.
 - `aw library proposals` — list open proposals.
 - `aw library approve --proposal_id <proposal_id>` — apply it; auto-bumps the
   next patch version after per-asset stale checks.
-- `aw library reject <proposal_id>` — drop it.
+- `aw library reject --proposal_id <proposal_id>` — drop it.
 
 Use this when a profile should evolve **under review** rather than by a direct
 `shelf-version` write — the agent proposes, a reviewer approves.
@@ -88,7 +81,7 @@ you adopt it onto the team shelf. Close the loop in order:
 
 ```bash
 aw team adopt <name>
-aw library propose <profile_ref> --body-file <proposal.json>
+aw library propose --target <asset> --profile_ref <profile_ref> --body-file <content.json>
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
@@ -102,7 +95,7 @@ After adopt, `aw team refresh <name>` reads the home's shelf pin, pulls the
 latest shelf version for that profile, and re-materializes the home. It prunes
 the managed set, preserves home state outside that set, updates
 `.aw/profile/ref.json`, and is a no-op when the digest is unchanged. The Library
-plugin is required for `aw team adopt`'s shelf import and for the `aw library ...`
+plugin is required for `aw team adopt`'s shelf import and for the Library
 evolution verbs.
 
 Public-pinned homes still have a valid refresh path: they refresh from the latest
@@ -113,7 +106,7 @@ If you are pulling upstream blueprint improvements into the shelf, install/use
 the Library plugin and do that before refresh:
 
 ```bash
-aw library update-from-source --profile_ref <profile_ref>
+aw library update-from-source --profile_ref <profile_ref> --target_version <v>
 aw team refresh <name>
 ```
 
@@ -124,29 +117,18 @@ live public-pinned agent keeps running the previous public-source home.
 
 Two ways a profile reaches a public blueprint.
 
-**Promote one shelf profile** — `aw library publish-profile <profile_ref>`,
-into a new blueprint or a new version of one the team owns. The library generates
-the `blueprint.yaml`; the published profile keeps its shelf digest; the
-blueprint's profile set accumulates.
+**Promote one shelf profile** — `aw library publish-profile --profile_ref <profile_ref> --blueprint_version <v>`, with optional `--profile_version <v>`, `--target_blueprint_ref <ref>`, or `--body-file <new-blueprint.json>`. The library generates the `blueprint.yaml`; the published profile keeps its shelf digest; the blueprint's profile set accumulates.
 
-**Import a whole blueprint at once** — `aw library publish-blueprint`, body = the
-canonical `import-payload.v1` (files + schema). This is the **first-party /
-repo-source** path: hand-author a blueprint in a repo, build its canonical import
-payload, import the whole thing. Idempotent on (owner_team, blueprint_ref,
-version).
+**Import a whole blueprint at once** — `aw library publish-blueprint --body-file <import-payload.json>`, body = the canonical `import-payload.v1` (required `files` + `schema`). This is the **first-party / repo-source** path: hand-author a blueprint in a repo, build its canonical import payload, import the whole thing. Idempotent on (owner_team, blueprint_ref, version).
 
 ## Materialize an agent from a profile
 
-`aw library materialize` (agent_id, profile_ref, runtime_kind, target) produces a
-runnable home — composed `AGENTS.md`, installed skills, the profile under
-`.aw/profile/` — from a shelf or catalog profile. It is the library-side
-counterpart to the souls / `aw init` path.
+`aw library materialize --runtime_kind <kind> --target <dir>` (optionally `--agent_id <agent_id>` and `--profile_ref <profile_ref>`) produces a runnable home — composed `AGENTS.md`, installed skills, the profile under `.aw/profile/` — from a shelf or catalog profile. It is the library-side counterpart to the souls / `aw init` path.
 
 ## Tags and binding
 
-- `aw library set-profile-tags <profile_ref>` — discovery tags on a shelf profile.
-- `aw library bind <agent_id>` / `aw library get-binding <agent_id>` — bind an
-  agent to a profile, and read the binding.
+- `aw library set-profile-tags --profile_ref <profile_ref> --body-file <tags.json>` — discovery tags on a shelf profile; the body carries the required tags array.
+- `aw library bind --agent_id <agent_id> --profile_ref <profile_ref> --profile_version <v> --profile_digest <sha256>` / `aw library get-binding --agent_id <agent_id>` — bind an agent to a profile, and read the binding.
 
 ## Guardrails
 

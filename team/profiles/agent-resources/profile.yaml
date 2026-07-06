@@ -1,6 +1,6 @@
 id: agent-resources
 name: Agent Resources
-version: 0.1.10
+version: 0.1.11
 scope: global
 works_on_main: true
 mission: >-
@@ -20,7 +20,7 @@ instructions: instructions.md
 runtime_assumptions:
   - local shell
   - a long-running terminal session (tmux) to run agents in
-  - aw CLI with the library plugin (the aw library verbs), and the aweb-channel + aweb-skills plugins available
+  - aw CLI with the library plugin verbs, and the aweb-channel + aweb-skills plugins available
   - claude-code as the harness
 memory_policy:
   mode: reviewed-learning
