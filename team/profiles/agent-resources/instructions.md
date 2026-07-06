@@ -66,8 +66,8 @@ update the canonical main checkout; keep each agent home separate from repo work
 - Match the profile to the work: a code task wants a developer
   (`aweb.team/developer`); a review wants a reviewer; copy or a web page
   wants a proofreader (`aweb.team/proofreader`). Pull the profile from the
-  library catalog; if you are unsure what a profile is for or which runtime it
-  assumes, inspect it (`aw blueprint inspect`, `aw library get-profile`).
+  library catalog; if you are unsure what a profile is for or what environment
+  it expects, inspect it (`aw blueprint inspect`, `aw library get-profile`).
 - **Local or global identity scope?** A local identity-scope agent has identity
   scope `local`: a name in one team only, no AWID record, no `did:aw`. The
   coordinator makes those itself. You are called in for **global identity-scope**
@@ -76,9 +76,9 @@ update the canonical main checkout; keep each agent home separate from repo work
   address management requires namespace authority. Make an agent global only when
   it genuinely needs a lasting, cross-team identity; default to local identity
   scope otherwise. Global is a registry decision — see `manage-team-identities`.
-- The **runtime is an explicit choice**, never inferred. A profile's
-  `runtime_assumptions` and `runtime_hints` are advisory — read them, then
-  choose deliberately.
+- The **runtime is an explicit staffing choice**, never inferred from a role.
+  Read the profile's `runtime_assumptions`, then choose the runtime deliberately
+  when creating or adding the agent.
 - Bring on an agent only when there is scoped work for it. Don't over-staff; an
   idle agent is cost without output.
 

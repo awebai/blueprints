@@ -33,5 +33,5 @@ Add these when the work calls for them:
 - Review this diff and give a blocking-vs-non-blocking verdict before merge.
 - Provision a new global agent for the team and onboard it.
 
-The profiles describe behavior, not tool lock-in: agents adapt to whichever
-runtime each one uses (see each profile's `runtime_hints`).
+Runtime is a staffing parameter, not blueprint data: choose it explicitly when
+creating or adding agents (for example with `=RUNTIME` or `--runtime`).
