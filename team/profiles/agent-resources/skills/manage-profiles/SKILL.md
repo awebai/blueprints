@@ -17,8 +17,9 @@ verb, authenticated by the team certificate's `library:write` scope — any team
 member whose cert holds that scope can do this; it is not gated to one role.
 
 The exact flags for each verb come from the installed Library plugin manifest;
-check each tool's `input_schema.required` fields and pass values by flag or
-`--body-file`, never as bare positionals.
+check each tool's `input_schema.required` fields and pass values by flag, never
+as bare positionals. For JSON arrays/objects, use a shell substitution such as
+`--files "$(cat profile-files.json)"`; this requires a shell.
 
 ## Setup: install the plugin
 
@@ -45,13 +46,13 @@ optional `--owner` / `--display_name`) binds the team to the library.
 
 Two starting points.
 
-**Author from scratch** — `aw library create-shelf-profile --body-file <profile.json>`. The body carries the required `files` array (`profile.yaml`, `instructions.md`, and each `skills/<s>/SKILL.md`) plus optional tags. It lands on the shelf as version 1.
+**Author from scratch** — `aw library create-shelf-profile --files "$(cat profile-files.json)"`. The `files` flag carries the required JSON array (`profile.yaml`, `instructions.md`, and each `skills/<s>/SKILL.md`); optionally add `--tags "$(cat tags.json)"`. It lands on the shelf as version 1.
 
 **Adopt and specialize an existing one** — `aw library import-to-shelf --source_blueprint_ref <blueprint_ref> --profile_ref <profile_ref>` (optionally `--source_blueprint_version <v>`). This copies a public-blueprint profile onto the shelf under its source ref and records that source — the path for "start from a generic catalog profile, then make it ours." Re-importing the same source is a no-op; it never pulls a newer version (that is `update-from-source`).
 
 ## Evolve it
 
-`aw library shelf-version --profile_ref <profile_ref> --body-file <profile.json>` adds a new content version from the new required `files` array. Source provenance, tags, and per-part baselines carry forward.
+`aw library shelf-version --profile_ref <profile_ref> --files "$(cat profile-files.json)"` adds a new content version from the new required `files` array. Source provenance, tags, and per-part baselines carry forward.
 
 ## Track the source — the asset-scoped loop
 
@@ -64,7 +65,7 @@ without losing your edits:
 
 Reviewed learning operates on the **shelf** profile, not on public blueprints:
 
-- `aw library propose --target profile --profile_ref <profile_ref> --body-file <proposal.json>` — submit a profile-targeted proposal; asset changes (file and `profile.yaml`-field assets) live in the body content. `--profile_ref` is optional only when the proposal body supplies it.
+- `aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'` — submit a profile-targeted proposal; asset changes (file and `profile.yaml`-field assets) live in the JSON content. `--profile_ref` is optional only when the proposal body supplies it.
 - `aw library proposals` — list open proposals.
 - `aw library approve --proposal_id <proposal_id>` — apply it; auto-bumps the
   next patch version after per-asset stale checks.
@@ -81,7 +82,7 @@ you adopt it onto the team shelf. Close the loop in order:
 
 ```bash
 aw team adopt <name>
-aw library propose --target profile --profile_ref <profile_ref> --body-file <proposal.json>
+aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'
 aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
@@ -117,9 +118,9 @@ live public-pinned agent keeps running the previous public-source home.
 
 Two ways a profile reaches a public blueprint.
 
-**Promote one shelf profile** — `aw library publish-profile --profile_ref <profile_ref> --blueprint_version <v>`, with optional `--profile_version <v>`, `--target_blueprint_ref <ref>`, or `--body-file <new-blueprint.json>`. The library generates the `blueprint.yaml`; the published profile keeps its shelf digest; the blueprint's profile set accumulates.
+**Promote one shelf profile** — `aw library publish-profile --profile_ref <profile_ref> --blueprint_version <v>`, with optional `--profile_version <v>`, `--target_blueprint_ref <ref>`, or `--new_blueprint "$(cat new-blueprint.json)"`. The library generates the `blueprint.yaml`; the published profile keeps its shelf digest; the blueprint's profile set accumulates.
 
-**Import a whole blueprint at once** — `aw library publish-blueprint --body-file <import-payload.json>`, body = the canonical `import-payload.v1` (required `files` + `schema`). This is the **first-party / repo-source** path: hand-author a blueprint in a repo, build its canonical import payload, import the whole thing. Idempotent on (owner_team, blueprint_ref, version).
+**Import a whole blueprint at once** — `aw library publish-blueprint --files "$(cat import-files.json)" --schema import-payload.v1`, carrying the canonical `import-payload.v1` required `files` array plus `schema`. This is the **first-party / repo-source** path: hand-author a blueprint in a repo, build its canonical import payload, import the whole thing. Idempotent on (owner_team, blueprint_ref, version).
 
 ## Materialize an agent from a profile
 
@@ -127,7 +128,7 @@ Two ways a profile reaches a public blueprint.
 
 ## Tags and binding
 
-- `aw library set-profile-tags --profile_ref <profile_ref> --body-file <tags.json>` — discovery tags on a shelf profile; the body carries the required tags array.
+- `aw library set-profile-tags --profile_ref <profile_ref> --tags "$(cat tags.json)"` — discovery tags on a shelf profile; the `tags` flag carries the required JSON array.
 - `aw library bind --agent_id <agent_id> --profile_ref <profile_ref> --profile_version <v> --profile_digest <sha256>` / `aw library get-binding --agent_id <agent_id>` — bind an agent to a profile, and read the binding.
 
 ## Guardrails
