@@ -101,15 +101,10 @@ Who ends up holding the team controller key — you on your machine vs AC
 server-side — is the *custody outcome* of which branch ran, and it's what decides
 who can mint members next.
 
-**PENDING CONFIRM-LOCK — remove this block at the v1.32 release-live signal.**
-These create+populate forms, including `--username`, are v1.32-pending
-confirm-lock. Run them only after the 1.32 release-live signal. Currently shipped
-help covers `--agent`, `--byot`, and `--namespace`.
-
 For hosted teams, create and populate the first roster through the hosted layer:
 
 ```bash
-aw team create <team> --username <u> \
+aw team create eng --username <u> \
   --agent alice@aweb.team/developer=pi \
   --agent bob@aweb.team/reviewer=claude-code
 ```
@@ -120,7 +115,7 @@ For a domain you control explicitly:
 aw id namespace prepare-controller --domain <domain>   # make the namespace key + print the _awid.<domain> TXT value
 # (human publishes the DNS TXT record)
 aw id namespace check-txt --domain <domain>            # verify DNS
-aw team create <name> --byot --namespace <domain> --username <u> \
+aw team create eng --byot --namespace <domain> --username <u> \
   --agent alice@aweb.team/developer=pi                 # create + enroll you + populate roster
 ```
 

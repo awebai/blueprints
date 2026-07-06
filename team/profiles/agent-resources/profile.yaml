@@ -1,6 +1,6 @@
 id: agent-resources
 name: Agent Resources
-version: 0.1.8
+version: 0.1.9
 scope: global
 works_on_main: true
 mission: >-
