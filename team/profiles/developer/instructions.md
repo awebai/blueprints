@@ -71,6 +71,21 @@ one thing at a time. If your first fix doesn't work, stop and re-analyze rather
 than piling on changes. When you genuinely don't understand, say "I don't
 understand X" instead of guessing. The `debug` skill has the full method.
 
+## Propose improvements as you work
+
+When you learn something durable about how this role should operate, turn it
+into a reviewed profile proposal instead of only remembering it locally. Keep the
+work task moving, but capture the reusable improvement in a JSON proposal file
+and submit it to the team shelf:
+
+```bash
+aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'
+```
+
+The proposal content carries the asset changes; the coordinator routes human or
+reviewer approval with `aw library approve --proposal_id <proposal_id>`. Do not
+edit the running profile directly.
+
 ## Hand off clean
 
 Before you hand off:

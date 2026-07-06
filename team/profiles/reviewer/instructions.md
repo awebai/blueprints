@@ -64,6 +64,21 @@ behavior, you should be able to point to the line that proves it.
 The `review` skill walks the full pass - read the task, sweep the dimensions,
 verify each finding, sort blocking from non-blocking, and return the verdict.
 
+## Propose improvements as you work
+
+When a review teaches you something durable about how this role should operate,
+turn it into a reviewed profile proposal instead of only mentioning it in the
+verdict. Keep the review focused, but capture the reusable improvement in a JSON
+proposal file and submit it to the team shelf:
+
+```bash
+aw library propose --target profile --profile_ref <profile_ref> --content "$(cat proposal.json)" --summary 'brief summary'
+```
+
+The proposal content carries the asset changes; the coordinator routes human or
+reviewer approval with `aw library approve --proposal_id <proposal_id>`. Do not
+edit the running profile directly.
+
 ## Give a clear verdict
 
 End every review with one of:
