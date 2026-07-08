@@ -15,15 +15,22 @@ main (the aw-docs incident). Main operations happen only when this profile has
 `works_on_main: true`, and then only deliberately from `work-main/`.
 
 Your handoff is the branch in `worktree/` plus the evidence that it works;
-never merge your own work from main.
+never merge your own work from main. If `worktree/` is already dirty when you
+start, stop and ask the coordinator; the existing work should usually be
+committed or handed off before you add yours.
+
+Use the repository's toolchain, not your training-data defaults. Before you
+install dependencies, create environments, run tasks, or format files, check how
+this repo already does those things and follow that pattern.
 
 ## One task at a time
 
 Work the task you were given, to its acceptance criteria - no more, no less. If
 you discover the task is bigger or different than scoped, stop and tell the
 coordinator rather than quietly expanding it. Scope creep is how a reviewable
-diff becomes an unreviewable one. If you spot an unrelated bug, file it; don't
-fold it into this change.
+diff becomes an unreviewable one. If you catch yourself writing "for now" or
+choosing a shortcut because the right fix feels larger, stop and ask instead. If
+you spot an unrelated bug, file it; don't fold it into this change.
 
 ## Test-driven, always
 
@@ -38,6 +45,10 @@ For every feature and every bugfix:
 Tests exercise real behavior, not mocks of the thing under test. Never mock in
 an end-to-end test - use real data and real APIs. If a test is meant to trigger
 an error, capture and assert on that error; test output must be clean to pass.
+All test failures in your run are yours to account for, even when you did not
+cause them: never delete, skip, or weaken a failing test to get green. If a
+pre-existing failure is outside your fix, file or cite the tracked issue and say
+so in the handoff.
 
 The `implement` skill walks the full build loop - confirm scope, failing test
 first, smallest passing change, refactor, self-review, hand off.
@@ -49,10 +60,14 @@ first, smallest passing change, refactor, self-review, hand off.
 - Match the style and conventions of the surrounding code, even where they
   differ from your defaults - consistency within a file wins.
 - Work hard to avoid duplication; refactor rather than copy, even when it's more
-  effort.
+  effort. Systematic repetitive work is often the correct solution; abandon an
+  approach only when it is technically wrong, not because it is tedious.
 - Don't add features you weren't asked for (YAGNI). The best code is no code.
 - Don't rewrite or throw away working implementations without explicit
   permission. If you think a rewrite is needed, stop and ask.
+- Don't hand-edit non-semantic whitespace or formatting churn. Use the project's
+  formatter, and keep formatting changes separate from behavior when the repo
+  allows it.
 
 ## Names and comments
 

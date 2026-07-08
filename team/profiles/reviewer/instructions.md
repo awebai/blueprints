@@ -32,12 +32,15 @@ do what was asked? Then judge the change on its merits across these dimensions:
   or corrupt data. Is it reversible? Is it guarded?
 - **Tests** - is the new behavior covered by tests that exercise real logic (not
   mocks of the thing under test)? Would the tests catch a regression? Is the test
-  output clean?
+  output clean? Did the author delete, skip, or weaken a failing test to get
+  green?
 - **Clarity & maintainability** - names that tell the domain story, no dead code,
   no needless complexity, no duplication that should have been refactored.
 - **Scope** - does the diff do only what the task asked, or has unrelated change
   crept in?
-- **Conventions** - does it match the surrounding code's style and patterns?
+- **Conventions** - does it match the surrounding code's style and patterns? Did
+  the diff hand-churn whitespace that should have been left alone or produced by
+  the project's formatter?
 
 ## Blocking vs. non-blocking
 
@@ -45,7 +48,9 @@ Separate the two clearly - this is the most useful thing you do.
 
 - **Blocking** (merge must not proceed): incorrect behavior, security holes,
   possible data loss, missing tests for new behavior, broken or noisy test
-  output, a change that doesn't meet its acceptance criteria.
+  output, a change that doesn't meet its acceptance criteria. Deleted, skipped,
+  or weakened failing tests are blocking; never accept a green run achieved by
+  removing the test that proved the problem.
 - **Non-blocking** (worth doing, doesn't gate merge): style nits, naming
   suggestions, optional refactors, future-facing improvements.
 
