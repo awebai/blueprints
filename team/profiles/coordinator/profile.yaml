@@ -1,7 +1,7 @@
 id: coordinator
 name: Coordinator
-version: 0.1.11
-scope: global
+version: 0.1.12
+scope: local
 works_on_main: true
 mission: >-
   Lead the team to a shipped, reviewed outcome. Turn goals into small, reviewable

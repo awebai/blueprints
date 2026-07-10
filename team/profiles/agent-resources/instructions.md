@@ -76,7 +76,10 @@ update the canonical main checkout; keep each agent home separate from repo work
   reusable membership across teams. A global identity can have zero addresses;
   address management requires namespace authority. Make an agent global only when
   it genuinely needs a lasting, cross-team identity; default to local identity
-  scope otherwise. Global is a registry decision — see `manage-team-identities`.
+  scope otherwise. This agent-resources profile itself defaults to local identity
+  scope; a team that wants durable, globally-addressable AR must request it
+  explicitly with `:global` in the agent spec, as a deliberate identity decision.
+  Global is a registry decision — see `manage-team-identities`.
 - The **runtime is an explicit staffing choice**, never inferred from a role.
   Read the profile's `runtime_assumptions`, then choose the runtime deliberately
   when creating or adding the agent.

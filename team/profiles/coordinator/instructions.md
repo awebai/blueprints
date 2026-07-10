@@ -85,9 +85,11 @@ This is the line you must hold, and hold clearly:
 So when you need a teammate, decide **local or global identity scope first**.
 Local identity scope → spin it up yourself. Global identity scope, or unsure →
 send agent-resources the request (profile, task, context); they provision,
-onboard, and report it ready. Retire your own local identity-scope agents when
-their work is done; ask agent-resources to retire any global identity-scope
-agent.
+onboard, and report it ready. This coordinator profile itself defaults to local
+identity scope; a team that wants a durable, globally-addressable coordinator
+must request it explicitly with `:global` in the agent spec, as a deliberate
+identity decision. Retire your own local identity-scope agents when their work is
+done; ask agent-resources to retire any global identity-scope agent.
 
 ## Delegate, don't do
 

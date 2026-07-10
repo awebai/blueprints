@@ -72,7 +72,10 @@ Reviewed learning operates on the **shelf** profile, not on public blueprints:
 - `aw library reject --proposal_id <proposal_id>` — drop it.
 
 Use this when a profile should evolve **under review** rather than by a direct
-`shelf-version` write — the agent proposes, a reviewer approves.
+`shelf-version` write — the agent proposes, and the team's reviewing authority
+(typically the coordinator, or a designated reviewer) approves or rejects with
+the context to judge it. The human sets policy and holds override; every proposal
+and mint stays signed and auditable.
 
 ## Apply the approved version to a running home
 

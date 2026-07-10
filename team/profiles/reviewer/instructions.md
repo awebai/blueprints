@@ -86,10 +86,11 @@ of `{path, content_utf8, base_asset_digest}` objects, one per changed asset.
 
 Loop contract: the Library plugin must be installed, and this agent home must be
 adopted onto the team shelf with `aw team adopt <name>` before approved mints can
-reach it. The human touchpoint is `aw library approve --proposal_id <proposal_id>`
-(or `aw library reject --proposal_id <proposal_id>`). After approval,
-`aw team refresh <name>` applies the mint to the running agent. Do not edit the
-running profile directly.
+reach it. Proposals are reviewed and approved by the team's reviewing authority —
+typically the coordinator, or a designated reviewer — who has the context to
+judge them. The human sets policy and holds override; every proposal and mint
+stays signed and auditable. After approval, `aw team refresh <name>` applies the
+mint to the running agent. Do not edit the running profile directly.
 
 ## Give a clear verdict
 
