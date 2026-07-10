@@ -198,6 +198,11 @@ aw library approve --proposal_id <proposal_id>
 aw team refresh <name>
 ```
 
+The approve/reject step belongs to the team's reviewing authority — typically
+the coordinator, or a designated reviewer — because they have the context to
+judge the proposal. The human sets policy and holds override; every proposal and
+mint stays signed and auditable.
+
 The Library plugin is required for `aw team adopt`'s shelf import and for the
 Library evolution verbs. `update-from-source` remains the shelf-side way
 to pull newer upstream blueprint parts into portions of the shelf profile your
