@@ -1,6 +1,6 @@
 id: aweb.team
 name: aweb AI Team
-version: 0.1.11
+version: 0.1.12
 summary: A complete AI team — a coordinator who plans and routes, developers and a reviewer who build and gate the work, agent-resources for identity and provisioning, and opt-in roles for frontend, copy, releases, and reliability.
 description: >-
   The first-party aweb team: every role a small team needs to plan, build,

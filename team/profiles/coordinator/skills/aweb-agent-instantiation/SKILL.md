@@ -43,13 +43,31 @@ The agent reads its profile, connects to the aweb channel, and is reachable over
 ## Preconditions — check, don't assume
 
 - You can run a tmux session. `aw team create --agent ...` populates a roster;
-  `aw team up` launches and reconciles it; `aw team add --start` adds one
+  `aw team up` launches and reconciles it; `aw team extend --start` adds one
   teammate later.
-- Use the `aw` release that includes the v1.32 team-create roster flags,
-  `aw team add --start`, `aw team up`, and the `works_on_main` home anatomy.
-- You are a member of the team you are staffing into.
+- Use `aw 1.32.9+`. It is the first released line whose local forced-re-key
+  command works against homes actually materialized by add/extend, and it
+  includes the team-create roster flags, `aw team extend`, `aw team add --start`,
+  `aw team up`, and the `works_on_main` home anatomy.
+- You are a member of the team you are staffing into, or you have explicit
+  API-key authority for the team you intend to staff.
 
 ## Create, populate, then launch the roster
+
+Use the right verb; they are not interchangeable:
+
+- `aw team create NAME` always creates a **new** team; repeated `--agent` specs
+  populate its initial roster.
+- `aw team extend SPEC...` adds to an **existing** team and may discover
+  authority from the current workspace, an invite-capable `agents/instances`
+  home, or explicitly intended API-key authority.
+- `aw team add SPEC...` is the lower-level current-workspace primitive. It
+  requires the cwd itself to hold an active team workspace; it does not discover
+  a sibling agent home. Keep it for explicit `--home` / `--layout-only` use and
+  other cases where the current workspace is deliberately the authority anchor.
+
+Never teach `create` as an add-if-team-exists command or `add` as a
+clean-directory bootstrap command.
 
 The primary staffing flow is **create + populate + up**: create the team, declare
 its initial roster with one `--agent` flag per teammate, then launch the
@@ -58,22 +76,28 @@ materialized roster.
 Hosted team:
 
 ```bash
-aw team create eng --username <u> \
-  --agent alice@aweb.team/developer=pi \
-  --agent bob@aweb.team/reviewer=claude-code \
-  --agent charlie@aweb.team/proofreader=claude-code
+aw team create eng --username <u> --first-agent-local \
+  --agent alice@aweb.team/developer:local=pi \
+  --agent bob@aweb.team/reviewer:local=claude-code \
+  --agent charlie@aweb.team/proofreader:local=claude-code
 aw team up
 ```
 
 Self-hosted/BYOT team:
 
 ```bash
-aw team create eng --byot --namespace <domain> --username <u> \
-  --agent alice@aweb.team/developer=pi \
-  --agent bob@aweb.team/reviewer=claude-code \
-  --agent charlie@aweb.team/proofreader=claude-code
+aw team create eng --byot --namespace <domain> --username <u> --first-agent-local \
+  --agent alice@aweb.team/developer:local=pi \
+  --agent bob@aweb.team/reviewer:local=claude-code \
+  --agent charlie@aweb.team/proofreader:local=claude-code
 aw team up
 ```
+
+Use `--first-agent-global` instead when the enrolled creator must be a reusable
+global identity; it reuses an existing global identity or creates the founding
+global identity when hosted/namespace authority permits. `--first-agent-local` /
+`--first-agent-global` scopes only the enrolled creator, never the team or the
+roster specs. Each roster spec has its own scope.
 
 The `--agent` specs use `[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME]`:
 
@@ -84,6 +108,15 @@ The `--agent` specs use `[NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME]`:
 - `:local` and `:global` describe **agent identity scope only**. A local
   identity-scope agent is name-only inside one team; a global identity-scope
   agent uses a stable `did:aw` and belongs in the `manage-team-identities` flow.
+- Omitted scope comes from `profile.yaml`. Because coordinator/AR policy is
+  local staffing, examples spell `:local`; this intentional per-spec override
+  remains local even if a catalog profile default changes. `:global` is an
+  explicit durable identity decision owned by the `manage-team-identities` flow.
+- On `aw team add` and `aw team extend`, command-wide `--local` / `--global`
+  override all specs, but prefer the visible per-spec form in staffing examples.
+  `aw team create` has no command-wide scope override: its `--first-agent-*`
+  flag scopes only the creator, so every roster override must use per-spec
+  `:local` / `:global`.
 - Omitted names are server-authoritative; do not invent the next classic name
   when the command can choose it.
 
@@ -143,29 +176,45 @@ The channel injects the mail; the agent wakes, acts as its profile, and replies.
 From here coordinate only over mail/chat (`aweb-messaging`) — never by driving
 the TUI.
 
-## Add one teammate later with `aw team add --start`
+## Add one teammate later with `aw team extend --start`
 
-Use `--start` when the team already exists and you need one more teammate:
-
-```bash
-aw team add alice@aweb.team/developer=claude-code --start --no-attach
-aw team add bob@aweb.team/reviewer=pi --start --session <session>
-```
-
-For one explicit target directory or work repo:
+Use `extend` when the team already exists and you need one more teammate:
 
 ```bash
-aw team add "alice@aweb.team/developer=claude-code" --home "agents/instances/alice" --work-dir <repo> --start --no-attach
+aw team extend alice@aweb.team/developer:local=claude-code --start --no-attach
+aw team extend bob@aweb.team/reviewer:local=pi --start --session <session>
 ```
 
-`aw team add [NAME@]BLUEPRINT/PROFILE[:local|global][=RUNTIME] --start`
-materializes the home, sets up home/worktree isolation plus `work-main/` for
-`works_on_main` roles, and launches the agent in tmux in one command via the
-same team-up path: channel preflight, prompt auto-answering, and `pi --approve`.
+`extend` can run in the team workspace, an agent home, or a repository layout
+whose `agents/instances` contains an invite-capable home. It materializes the
+home, sets up home/worktree isolation plus `work-main/` for `works_on_main`
+roles, and can launch the agent in tmux in one command via the same team-up path:
+channel preflight, prompt auto-answering, and `pi --approve`.
 
-`--start` handles exactly one agent. It is rejected with `--layout-only`, takes
-`--session`, `--attach`, and `--no-attach` like `aw team up`, and skips launch if
-the home is already a running process cwd.
+Preserve the lower-level current-workspace primitive when you need its unique
+controls:
+
+```bash
+aw team add "alice@aweb.team/developer:local=claude-code" \
+  --home "agents/instances/alice" --work-dir <repo> --start --no-attach
+```
+
+`extend` intentionally has no `--home` or `--layout-only`; use `add` only when
+cwd is the active member workspace and those primitive controls are needed. Both
+verbs accept `--start`; it still requires exactly one agent, takes `--session`,
+`--attach`, and `--no-attach` like `aw team up`, and skips launch if the home is
+already a running process cwd. `--start` is rejected with `--layout-only`.
+
+Authority precedence for `extend`/`add`:
+
+- Current workspace/discovered-home authority is used when no API-key intent is
+  present.
+- An ambient `AWEB_API_KEY` bootstraps only where there is no active team. If an
+  active team exists, ambient-key ambiguity is an error before mutation: unset it
+  to extend the active team.
+- Explicit `--api-key`, or `AWEB_API_KEY` together with explicit `--team-id`,
+  states API-key intent and wins over filesystem discovery. `--team-id` also
+  asserts the expected team.
 
 ## Refresh an existing agent after profile evolution
 
@@ -249,6 +298,6 @@ Removal is a lifecycle step, not just a process cleanup.
 ## References
 
 - `docs/running-agents.md` and `docs/team-blueprints-sot.md` (aweb repo) — the
-  about-to-release run/materialization contract.
+  shipped run/materialization contract.
 - The **AR (agent resources)** blueprint profile — the role that orchestrates
   this skill: when to staff, onboarding content, roster tracking, retire.
