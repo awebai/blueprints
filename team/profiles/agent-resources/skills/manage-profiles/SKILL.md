@@ -16,21 +16,37 @@ into a **public blueprint** other teams can adopt. Every step is a library plugi
 verb, authenticated by the team certificate's `library:write` scope — any team
 member whose cert holds that scope can do this; it is not gated to one role.
 
-The exact flags for each verb come from the installed Library plugin manifest;
-check each tool's `input_schema.required` fields and pass values by flag, never
-as bare positionals. For JSON arrays/objects, use a shell substitution such as
+The installed manifest's raw `input_schema` is not the operator contract. Flags
+and requiredness come from live nested CLI help:
+
+```bash
+aw library --help
+aw library <verb> --help
+# equivalent nested form:
+aw library help <verb>
+```
+
+Help shows body/query flags, required fields, and `--body-file`; explicit flags
+merge over matching body-file values. Pass values by flag, never as bare
+positionals. Continue passing JSON arrays/objects as JSON strings, e.g.
 `--files "$(cat profile-files.json)"`; this requires a shell.
 
 ## Setup: install the plugin
 
 The library exposes its API as manifest-dispatched Library subcommands. Install
-it once into the trusted plugin directory, then confirm the verbs are present:
+it once into the trusted plugin directory, confirm the verbs are present, then
+read live nested help for the verb before invoking it:
 
 ```
 aw plugin install <library manifest>
 aw plugin list
+aw library --help
+aw library <verb> --help
+# equivalent nested form:
+aw library help <verb>
 ```
 
+Do not open the installed manifest or infer commands from `input_schema`.
 Calls authenticate with the team cert (`aw id request --team-auth`); the team is
 taken from the cert, never passed. `aw library register` (once, idempotent;
 optional `--owner` / `--display_name`) binds the team to the library.
