@@ -11,10 +11,6 @@ and run as a team of AI coworkers.
   and a reviewer who build and gate the work, agent-resources for identity and
   provisioning, and opt-in roles for frontend, copy, releases, and reliability.
 
-Deprecated, pending removal from the catalog once `aweb.team` is the shipped
-default: [`development/`](development/) and [`support/`](support/) — their
-profiles are merged into `team/`.
-
 ## Blueprint layout
 
 ```
